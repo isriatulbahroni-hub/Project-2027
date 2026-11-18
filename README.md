@@ -4,6 +4,24 @@ Generator untuk planner digital PDF 2027 dengan navigasi hyperlink (tap untuk pi
 siap dipakai di GoodNotes, Notability, dan Noteshelf. Tanggal merah (libur nasional dan cuti bersama)
 Indonesia 2027 sudah ditandai di kalender, mingguan, dan harian.
 
+## Target produk
+
+Project ini akan dikembangkan dari generator PDF menjadi platform dengan dua target:
+
+1. **Web (dikerjakan lebih dulu).** Dibuat seperti sistem operasi digital yang profesional: satu dashboard utama
+   sebagai pusat, dan setiap fitur punya halaman serta dashboard sendiri. Bukan satu halaman panjang yang
+   mencampur semua fitur. Semua modul tetap terhubung lewat dashboard utama.
+2. **Aplikasi (APK premium, dikerjakan belakangan).** Dibuat setelah web berjalan, memakai akun dan backend yang sama.
+
+Arah rancangan:
+
+- Modul terpisah, misalnya katalog dan pratinjau, unduhan dan akun, kustomisasi, data libur, dan admin.
+- Satu backend bersama untuk akun, lisensi, dan data, dipakai web dan aplikasi.
+- Hak akses premium divalidasi di server, bukan hanya di aplikasi.
+- Generator Python tetap menjadi mesin pembuat PDF.
+
+Rencana teknis di atas belum final dan akan diperbarui seiring pengerjaan.
+
 ## Isi planner (versi lengkap: 501 halaman)
 
 | Bagian | Halaman |
