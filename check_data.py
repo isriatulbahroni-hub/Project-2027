@@ -32,7 +32,25 @@ for y, rows in d["libur"].items():
     j = src.get("jumlah", {})
     if (n, c) != (j.get("nasional"), j.get("cuti_bersama")):
         err.append(f"{y}: isi data {n} nasional + {c} cuti bersama, sumber menyatakan {j}")
+
+# Daftar tema di generator (PDF) dan katalog (web) harus identik, termasuk warnanya
+import re
+_g = open("generate_planner.py", encoding="utf-8").read()
+_k = open("public/katalog.js", encoding="utf-8").read()
+gen = {m.group(1): m.group(2) for m in re.finditer(r'^\s+"(\w+)":\s+dict\((.*)\)', _g, re.M)}
+gcol = {}
+for name, body in gen.items():
+    c = dict(re.findall(r'(\w+)="(#[0-9A-Fa-f]{6})"', body))
+    gcol[name] = tuple(c.get(k, "").upper() for k in ("main", "soft", "accent", "bg"))
+kat = {m.group(1): tuple(x.upper() for x in m.groups()[2:])
+       for m in re.finditer(r'\["(\w+)","([^"]+)","(#[0-9A-Fa-f]{6})","(#[0-9A-Fa-f]{6})","(#[0-9A-Fa-f]{6})","(#[0-9A-Fa-f]{6})"\]', _k)}
+if set(gcol) != set(kat):
+    err.append(f"tema beda: generator {sorted(gcol)} vs katalog {sorted(kat)}")
+for name in set(gcol) & set(kat):
+    if gcol[name] != kat[name]:
+        err.append(f"warna tema {name} beda: generator {gcol[name]} vs katalog {kat[name]}")
 if err:
-    print("DATA LIBUR TIDAK VALID:\n- " + "\n- ".join(err))
+    print("DATA TIDAK VALID:\n- " + "\n- ".join(err))
     sys.exit(1)
+print("Tema sinkron:", ", ".join(sorted(gcol)))
 print("Data libur valid:", ", ".join(f"{y} ({len(r)} tanggal)" for y, r in d["libur"].items()))

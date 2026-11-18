@@ -48,7 +48,7 @@ Opsi:
 
 - `--year` tahun planner (default 2027)
 - `--start` `monday` atau `sunday`
-- `--theme` `sage`, `rose`, atau `slate`
+- `--theme` `sage`, `rose`, `slate`, `lavender`, `ocean`, `peach`, `mocha`, `mint`, atau `midnight` (tema gelap). Daftar lengkap: `--list-themes`
 - `--no-daily` lewati halaman harian (file lebih kecil, sekitar 136 halaman)
 - `--no-holidays` jangan tandai tanggal merah Indonesia
 - `--out` path file output
@@ -57,7 +57,7 @@ Contoh membuat semua varian:
 
 ```bash
 for start in monday sunday; do
-  for theme in sage rose slate; do
+  for theme in $(python generate_planner.py --list-themes); do
     python generate_planner.py --start $start --theme $theme
   done
 done
@@ -76,6 +76,12 @@ Kalau Kemenag menetapkan tanggal hari besar Islam yang berbeda dari SKB, perbaru
 
 Tahun yang belum ada di file data tetap bisa dibuat, hanya tanpa tanda libur.
 
+## Tema
+
+Sembilan tema, didefinisikan di `THEMES` pada `generate_planner.py`. Katalog web memakai daftar warna yang sama (`TH` di `public/katalog.js`).
+`check_data.py` gagal kalau nama atau warna kedua daftar berbeda. Menambah tema: tambahkan di kedua tempat itu, lalu jalankan `python check_data.py`.
+Tema `midnight` bergaya gelap (teks terang di latar gelap), cocok untuk iPad.
+
 ## Cek otomatis
 
 Saat build, `check_data.py` memeriksa data libur dan generator memeriksa semua link. Kalau ada link yang menuju halaman yang tidak ada, build gagal
@@ -83,7 +89,7 @@ dan nama tujuan yang bermasalah dicetak, jadi tidak ada link mati yang ikut terj
 
 ## Deploy (Vercel)
 
-`vercel.json` membuat 6 PDF (2 awal minggu x 3 tema) ke `public/planners/` saat build, dan `public/index.html`
+`vercel.json` menjalankan `build.sh`, yang membuat PDF (2 awal minggu x 9 tema x Lengkap/Ringkas = 36 file) ke `public/planners/` saat build, dan `public/index.html`
 menampilkan pratinjau serta tombol unduh. Versi reportlab dikunci di `requirements.txt` supaya hasil build konsisten.
 
 ## Catatan

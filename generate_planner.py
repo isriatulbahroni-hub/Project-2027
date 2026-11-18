@@ -29,6 +29,13 @@ THEMES = {
     "sage":  dict(bg="#FBFAF7", main="#5F7F6E", soft="#E3EBE5", accent="#E8D9C5", text="#2F3A34", line="#D5D9D4", muted="#9AA59E", hol="#B5483F", holbg="#F5E3DF"),
     "rose":  dict(bg="#FFFBFA", main="#B5707D", soft="#F6E4E7", accent="#EBD7C3", text="#40292E", line="#E6D6D8", muted="#B39CA0", hol="#C62828", holbg="#FBE0DC"),
     "slate": dict(bg="#F9FAFB", main="#4A5D78", soft="#E2E8F0", accent="#F0DFC8", text="#1F2937", line="#D3D9E2", muted="#8E98A8", hol="#C0392B", holbg="#F8E1DE"),
+    "lavender": dict(bg="#FBFAFE", main="#7B6BA8", soft="#E9E5F4", accent="#EADFC9", text="#2E2A3F", line="#DAD6E6", muted="#A19BB5", hol="#B5483F", holbg="#F5E3DF"),
+    "ocean": dict(bg="#F7FBFC", main="#3F7F95", soft="#DDEEF2", accent="#F1E2C8", text="#1F3540", line="#CFE0E5", muted="#8AA6B0", hol="#C0392B", holbg="#F8E1DE"),
+    "peach": dict(bg="#FFFAF6", main="#D98560", soft="#FBE6DA", accent="#E6E3C8", text="#4A3028", line="#EBDCD2", muted="#BFA397", hol="#B3261E", holbg="#F9DDD8"),
+    "mocha": dict(bg="#FAF7F3", main="#8B6B52", soft="#EDE3D9", accent="#D9E0CF", text="#3A2E26", line="#DDD2C7", muted="#A8978A", hol="#B3392F", holbg="#F4DFDA"),
+    "mint": dict(bg="#F7FCFA", main="#3E9C86", soft="#DDF1EA", accent="#F3E5D0", text="#1F3A33", line="#CFE5DD", muted="#8CB0A5", hol="#C0392B", holbg="#F8E1DE"),
+    # Tema gelap untuk iPad/tablet OLED: teks terang di latar gelap, huruf pada tombol memakai warna bg (gelap)
+    "midnight": dict(bg="#1B1F2A", main="#9DB4E6", soft="#2A3040", accent="#3A4157", text="#E8ECF5", line="#3A4155", muted="#7F8AA3", hol="#FF8A80", holbg="#43303A"),
 }
 
 MONTHS = [calendar.month_name[i] for i in range(1, 13)]
@@ -648,10 +655,14 @@ def main():
     ap.add_argument("--year", type=int, default=2027)
     ap.add_argument("--start", choices=["monday", "sunday"], default="monday")
     ap.add_argument("--theme", choices=list(THEMES), default="sage")
+    ap.add_argument("--list-themes", action="store_true", help="cetak nama semua tema lalu keluar (dipakai build.sh)")
     ap.add_argument("--no-daily", action="store_true", help="skip the 365 daily pages (smaller file)")
     ap.add_argument("--no-holidays", action="store_true", help="jangan tandai libur nasional / cuti bersama Indonesia")
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
+    if a.list_themes:
+        print(" ".join(THEMES))
+        return
     out = a.out or os.path.join("dist", f"All-in-One-Digital-Planner-{a.year}-{a.start.capitalize()}-{a.theme}.pdf")
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     planner = Planner(out, a.year, a.start, a.theme, not a.no_daily, not a.no_holidays)

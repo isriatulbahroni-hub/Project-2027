@@ -2,7 +2,10 @@
    Dibungkus IIFE supaya tidak bentrok dengan nama global di core.js, mods1.js, mods2.js. */
 (function(){
   const VER=[["full","Lengkap"],["lite","Ringkas"]];
-  const THEMES=[["sage","Sage"],["rose","Rose"],["slate","Slate"]];
+  /* [id, nama, warna utama, warna lembut, warna aksen, latar]. Harus sama dengan THEMES di generate_planner.py */
+  const TH=[["sage","Sage","#5F7F6E","#E3EBE5","#E8D9C5","#FBFAF7"],["rose","Rose","#B5707D","#F6E4E7","#EBD7C3","#FFFBFA"],["slate","Slate","#4A5D78","#E2E8F0","#F0DFC8","#F9FAFB"],["lavender","Lavender","#7B6BA8","#E9E5F4","#EADFC9","#FBFAFE"],["ocean","Ocean","#3F7F95","#DDEEF2","#F1E2C8","#F7FBFC"],["peach","Peach","#D98560","#FBE6DA","#E6E3C8","#FFFAF6"],["mocha","Mocha","#8B6B52","#EDE3D9","#D9E0CF","#FAF7F3"],["mint","Mint","#3E9C86","#DDF1EA","#F3E5D0","#F7FCFA"],["midnight","Midnight (gelap)","#9DB4E6","#2A3040","#3A4157","#1B1F2A"]];
+  const THEMES=TH.map(x=>[x[0],x[1]]);
+  const swatch=id=>{const t=TH.find(x=>x[0]===id)||TH[0];return `<div style="display:flex;gap:6px;align-items:center;margin:10px 0 0">${[t[5],t[3],t[2],t[4]].map(c=>`<i style="width:26px;height:26px;border-radius:50%;background:${c};border:1px solid rgba(128,128,128,.45);display:inline-block" aria-hidden="true"></i>`).join("")}<span class="mute" style="margin-left:6px">Palet ${esc(t[1])}</span></div>`};
   const STARTS=[["monday","Senin"],["sunday","Minggu"]];
   /* Isi tautan toko di sini (harus diawali https://). Tombol hanya tampil kalau terisi. */
   const SHOP={shopee:"",tiktok:"",etsy:""};
@@ -58,11 +61,11 @@
       .map(k=>`<a class="btn pri" href="${esc(SHOP[k])}" target="_blank" rel="noopener noreferrer">Beli di ${SHOPN[k]}</a>`).join("");
     const info=pn("Planner Digital 2027",
       `<p style="margin:0 0 10px">Planner PDF dengan navigasi hyperlink (ketuk untuk pindah halaman), siap dipakai di GoodNotes, Notability, dan Noteshelf. Tanggal merah dan cuti bersama Indonesia 2027 sudah ditandai di kalender, mingguan, dan harian.</p>`
-      +badge("Bahasa Indonesia")+badge("PDF berlink")+badge("3 tema")+badge("Mulai Senin atau Minggu")
-      +`<div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));margin-top:6px">${stat(pagesOf("full"),"halaman, versi Lengkap")}${stat(pagesOf("lite"),"halaman, versi Ringkas")}${stat(26,"tanggal merah 2027")}${stat(6+6,"file PDF")}</div>`
+      +badge("Bahasa Indonesia")+badge("PDF berlink")+badge(THEMES.length+" tema")+badge("Mulai Senin atau Minggu")
+      +`<div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));margin-top:6px">${stat(pagesOf("full"),"halaman, versi Lengkap")}${stat(pagesOf("lite"),"halaman, versi Ringkas")}${stat(26,"tanggal merah 2027")}${stat(VER.length*STARTS.length*THEMES.length,"file PDF")}</div>`
       +(shop?`<div class="fm" style="margin-top:12px">${shop}</div>`:""),"c12");
     const pick=pn("Pilih varian",
-      lbl("Versi")+seg("ver",VER)+lbl("Tema")+seg("theme",THEMES)+lbl("Awal minggu")+seg("start",STARTS)
+      lbl("Versi")+seg("ver",VER)+lbl("Tema")+seg("theme",THEMES)+swatch(S.theme)+lbl("Awal minggu")+seg("start",STARTS)
       +`<p class="mute" style="margin:10px 0">${tot} halaman. ${S.ver==="lite"?"Tanpa halaman harian, file lebih kecil.":"Termasuk 365 halaman harian."}</p>`
       +`<div class="fm"><a class="btn" href="${u}" target="_blank" rel="noopener">Buka di tab baru</a><a class="btn pri" href="${u}" download data-act="dl:${f}">Download PDF</a></div>`
       +`<p class="mute" id="pdfst" role="status" style="margin:10px 0">Memeriksa file...</p>`
