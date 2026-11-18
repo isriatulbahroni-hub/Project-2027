@@ -1,3 +1,4 @@
 dist/
+public/planners/
 __pycache__/
 *.pyc
