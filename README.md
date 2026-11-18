@@ -4,23 +4,15 @@ Generator untuk planner digital PDF 2027 dengan navigasi hyperlink (tap untuk pi
 siap dipakai di GoodNotes, Notability, dan Noteshelf. Tanggal merah (libur nasional dan cuti bersama)
 Indonesia 2027 sudah ditandai di kalender, mingguan, dan harian.
 
-## Target produk
+## Web: Planner OS
 
-Project ini akan dikembangkan dari generator PDF menjadi platform dengan dua target:
+Versi web sudah berjalan (folder `public/`): satu dashboard utama dan modul terpisah untuk Planner, Goals, Wellness,
+Journal, Productivity, Finance, Calendar, Katalog, dan Downloads. Data pribadi tersimpan di perangkat (lihat `PRIVACY.md`)
+dan bisa diekspor atau dipulihkan sebagai JSON. Bisa dipasang sebagai aplikasi (PWA).
 
-1. **Web (dikerjakan lebih dulu).** Dibuat seperti sistem operasi digital yang profesional: satu dashboard utama
-   sebagai pusat, dan setiap fitur punya halaman serta dashboard sendiri. Bukan satu halaman panjang yang
-   mencampur semua fitur. Semua modul tetap terhubung lewat dashboard utama.
-2. **Aplikasi (APK premium, dikerjakan belakangan).** Dibuat setelah web berjalan, memakai akun dan backend yang sama.
-
-Arah rancangan:
-
-- Modul terpisah, misalnya katalog dan pratinjau, unduhan dan akun, kustomisasi, data libur, dan admin.
-- Satu backend bersama untuk akun, lisensi, dan data, dipakai web dan aplikasi.
-- Hak akses premium divalidasi di server, bukan hanya di aplikasi.
-- Generator Python tetap menjadi mesin pembuat PDF.
-
-Rencana teknis di atas belum final dan akan diperbarui seiring pengerjaan.
+Belum ada: akun dan login, sinkron antar perangkat, panel admin (disembunyikan sampai login ada), dan aplikasi APK.
+Rencananya satu backend bersama untuk akun, lisensi, dan data, dengan hak akses premium divalidasi di server.
+Generator Python tetap menjadi mesin pembuat PDF. Rencana ini belum final.
 
 ## Isi planner (versi lengkap: 501 halaman)
 
@@ -73,15 +65,20 @@ done
 
 ## Tanggal merah
 
-Data ada di `holidays_id.py`, mengikuti SKB Menteri Agama, Menteri Ketenagakerjaan, dan Menteri PANRB
-No. 1205, 3, dan 2 Tahun 2026 (ditetapkan 15 September 2026): 18 hari libur nasional dan 8 cuti bersama.
+Semua tanggal merah dibaca dari satu file data: `public/holidays.json`. Generator PDF (lewat `holidays_id.py`) dan web
+(`core.js`) memakai file yang sama, jadi tidak ada tanggal yang ditulis ulang di kode. Isi 2027 mengikuti SKB Menteri Agama,
+Menteri Ketenagakerjaan, dan Menteri PANRB No. 1205, 3, dan 2 Tahun 2026 (ditetapkan 15 September 2026): 18 hari libur
+nasional dan 8 cuti bersama. Kalender (hari dalam seminggu, panjang bulan, tahun kabisat) dihitung dari fungsi tanggal, bukan ditulis manual.
+
+Menambah atau memperbarui tahun: ubah `public/holidays.json` (isi `sumber` lengkap dengan jumlah resmi, dan daftar `libur`),
+lalu jalankan `python check_data.py`. Validator memeriksa format tanggal, tahun, jenis, duplikat, dan kecocokan jumlah dengan sumber.
 Kalau Kemenag menetapkan tanggal hari besar Islam yang berbeda dari SKB, perbarui file itu lalu build ulang.
 
-Tahun selain 2027 tetap bisa dibuat, hanya tanpa tanda libur. Untuk menambah tahun lain, ikuti format di `holidays_id.py`.
+Tahun yang belum ada di file data tetap bisa dibuat, hanya tanpa tanda libur.
 
 ## Cek otomatis
 
-Saat build, generator memeriksa semua link. Kalau ada link yang menuju halaman yang tidak ada, build gagal
+Saat build, `check_data.py` memeriksa data libur dan generator memeriksa semua link. Kalau ada link yang menuju halaman yang tidak ada, build gagal
 dan nama tujuan yang bermasalah dicetak, jadi tidak ada link mati yang ikut terjual.
 
 ## Deploy (Vercel)
@@ -92,6 +89,6 @@ menampilkan pratinjau serta tombol unduh. Versi reportlab dikunci di `requiremen
 ## Catatan
 
 - Desain dan isi dibuat orisinal lewat kode, jadi aman untuk dijual (Shopee, TikTok Shop, Etsy).
-- Ketentuan pemakaian untuk pembeli ada di `TERMS.md` (draft, sesuaikan sebelum dipakai).
+- Ketentuan pemakaian untuk pembeli ada di `TERMS.md`, dan kebijakan privasi web di `PRIVACY.md` (keduanya draft, sesuaikan sebelum dipakai).
 - Halaman kesehatan (Period, Symptom, Medication, Doctor Visit, Wellness log) diberi footer "bukan nasihat medis" secara otomatis.
 - File PDF tidak di-commit (lihat `.gitignore`); jalankan generator atau ambil hasil build dari Vercel.
