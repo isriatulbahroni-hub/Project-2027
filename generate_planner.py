@@ -4,16 +4,20 @@
 Usage:
     python generate_planner.py --year 2027 --start monday --theme sage
     python generate_planner.py --year 2027 --start sunday --theme rose --no-daily
+    python generate_planner.py --year 2027 --no-holidays
 """
 import argparse
 import calendar
 import datetime as dt
 import os
+import sys
 
 from reportlab.lib.colors import HexColor
+from reportlab.lib.utils import simpleSplit
 from reportlab import rl_config
 from reportlab.pdfgen import canvas
 
+from holidays_id import HOLIDAYS, SOURCE
 from templates_extra import ExtraPages
 
 rl_config.useA85 = 0  # Flate saja tanpa ASCII85: file ~20% lebih kecil, tetap standar PDF
@@ -22,24 +26,40 @@ W, H = 792, 612  # US Letter landscape (same as most planner marketplaces)
 M = 28           # outer margin
 
 THEMES = {
-    "sage":  dict(bg="#FBFAF7", main="#5F7F6E", soft="#E3EBE5", accent="#E8D9C5", text="#2F3A34", line="#D5D9D4", muted="#9AA59E"),
-    "rose":  dict(bg="#FFFBFA", main="#B5707D", soft="#F6E4E7", accent="#EBD7C3", text="#40292E", line="#E6D6D8", muted="#B39CA0"),
-    "slate": dict(bg="#F9FAFB", main="#4A5D78", soft="#E2E8F0", accent="#F0DFC8", text="#1F2937", line="#D3D9E2", muted="#8E98A8"),
+    "sage":  dict(bg="#FBFAF7", main="#5F7F6E", soft="#E3EBE5", accent="#E8D9C5", text="#2F3A34", line="#D5D9D4", muted="#9AA59E", hol="#B5483F", holbg="#F5E3DF"),
+    "rose":  dict(bg="#FFFBFA", main="#B5707D", soft="#F6E4E7", accent="#EBD7C3", text="#40292E", line="#E6D6D8", muted="#B39CA0", hol="#C62828", holbg="#FBE0DC"),
+    "slate": dict(bg="#F9FAFB", main="#4A5D78", soft="#E2E8F0", accent="#F0DFC8", text="#1F2937", line="#D3D9E2", muted="#8E98A8", hol="#C0392B", holbg="#F8E1DE"),
 }
 
 MONTHS = [calendar.month_name[i] for i in range(1, 13)]
 MON_ABBR = [calendar.month_abbr[i].upper() for i in range(1, 13)]
+ID_DAY = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"]
+ID_MON = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
+
+# Halaman kesehatan: diberi footer disclaimer otomatis (lihat Planner.x_page)
+HEALTH_PAGES = {"tpl_period", "tpl_symptom", "tpl_meds", "tpl_doctor"}
 
 
 class Planner(ExtraPages):
-    def __init__(self, path, year, start, theme, daily):
+    def __init__(self, path, year, start, theme, daily, holidays=True):
         self.year, self.daily = year, daily
         self.wk0 = 0 if start == "monday" else 6
         self.t = {k: HexColor(v) for k, v in THEMES[theme].items()}
+        self.hol = HOLIDAYS.get(year, {}) if holidays else {}
         self.c = canvas.Canvas(path, pagesize=(W, H))
         self.c.setTitle(f"All-in-One Digital Planner {year}")
         self.c.setAuthor("Project-2027")
         self.c.setSubject("Hyperlinked digital planner")
+        # Catat semua tujuan bookmark dan semua link untuk validasi di akhir build
+        self._dests, self._links = set(), set()
+        _bookmark = self.c.bookmarkPage
+
+        def bookmark(name, *a, **kw):
+            self._dests.add(name)
+            return _bookmark(name, *a, **kw)
+
+        self.c.bookmarkPage = bookmark
+        self.pages = 0
         first = dt.date(year, 1, 1)
         self.first = first - dt.timedelta((first.weekday() - self.wk0) % 7)
         self.n_weeks = (dt.date(year, 12, 31) - self.first).days // 7 + 1
@@ -54,6 +74,7 @@ class Planner(ExtraPages):
 
     def link(self, x, y, w, h, dest):
         if dest:
+            self._links.add(dest)
             self.c.linkRect("", dest, (x, y, x + w, y + h), relative=0, thickness=0)
 
     def box(self, x, y, w, h, fill=None, stroke="line", r=6, lw=0.7):
@@ -146,6 +167,13 @@ class Planner(ExtraPages):
         mid = s + dt.timedelta(3)
         return 1 if mid.year < self.year else 12 if mid.year > self.year else mid.month
 
+    def hol_name(self, d):
+        """Nama libur untuk tanggal d (None kalau bukan tanggal merah)."""
+        h = self.hol.get(d)
+        if not h:
+            return None
+        return h[0] if h[1] == "N" else f"Cuti bersama {h[0]}"
+
     # ---------- pages ----------
     def cover(self):
         c = self.c
@@ -176,6 +204,11 @@ class Planner(ExtraPages):
             self.txt(cols[0] + 6, y, label, 9)
             self.link(cols[0], y - 4, 170, 14, dest)
             y -= 16
+        # Libur nasional (hanya kalau data tanggal merah tersedia)
+        if self.hol:
+            self.txt(cols[0], top - 250, "HOLIDAYS", 10, "Helvetica-Bold", "main")
+            self.txt(cols[0] + 6, top - 270, f"Libur nasional {self.year}", 9)
+            self.link(cols[0], top - 274, 170, 14, "holidays")
         # Habit / mood
         self.txt(cols[1], top, "HABIT TRACKER", 10, "Helvetica-Bold", "main")
         for i in range(12):
@@ -239,9 +272,38 @@ class Planner(ExtraPages):
                 for i, d in enumerate(week):
                     cx, cy = x + 8 + i * dw, y + ch - 46 - r * 17
                     inm = d.month == m
-                    self.txt(cx + dw / 2, cy, str(d.day), 7, "Helvetica", "text" if inm else "line", "c")
+                    hol = inm and d in self.hol
+                    self.txt(cx + dw / 2, cy, str(d.day), 7, "Helvetica-Bold" if hol else "Helvetica",
+                             "hol" if hol else ("text" if inm else "line"), "c")
                     if inm:
                         self.link(cx, cy - 4, dw, 14, self.day_dest(d))
+        self.end()
+
+    def holidays_page(self):
+        items = sorted(self.hol.items())
+        n_nat = sum(1 for _, (_, k) in items if k == "N")
+        n_cb = len(items) - n_nat
+        self.begin("holidays", None, "HOLIDAYS", f"Libur nasional dan cuti bersama {self.year}  |  {n_nat} libur nasional, {n_cb} cuti bersama",
+                   "Holidays", 1)
+        self.nav([("YEAR", "year"), ("INDEX", "index")])
+        half = (len(items) + 1) // 2
+        colw = (W - 2 * M - 16) / 2
+        top, rh = H - 104, 26
+        for ci in range(2):
+            x = M + ci * (colw + 16)
+            for r, (d, (name, kind)) in enumerate(items[ci * half:(ci + 1) * half]):
+                y = top - (r + 1) * rh
+                nat = kind == "N"
+                self.box(x, y, colw, rh - 3, fill="holbg" if nat else "bg", stroke="line", r=5)
+                self.txt(x + 8, y + 9, f"{ID_DAY[d.weekday()]}, {d.day} {ID_MON[d.month - 1]}", 8.5, "Helvetica-Bold", "hol")
+                self.txt(x + 80, y + 9, name, 8.5)
+                self.txt(x + colw - 8, y + 9, "LIBUR" if nat else "CUTI BERSAMA", 6.5, "Helvetica-Bold", "muted", "r")
+                self.link(x, y, colw, rh - 3, self.day_dest(d))
+        y0 = top - half * rh - 14
+        self.txt(M, y0, f"Sumber: {SOURCE.get(self.year, 'SKB 3 Menteri')}. Tanggal hari besar Islam mengikuti penetapan Menteri Agama.",
+                 7, "Helvetica", "muted")
+        self.txt(M, y0 - 26, "CATATAN", 9, "Helvetica-Bold", "main")
+        self.lines(M, y0 - 44, W - 2 * M, max(int((y0 - 44 - 40) // 20) + 1, 0), 20)
         self.end()
 
     def month_page(self, m):
@@ -265,10 +327,18 @@ class Planner(ExtraPages):
             for i, d in enumerate(week):
                 x = gx + i * cw
                 inm = d.month == m
-                self.box(x + 1, y + 2, cw - 2, ch - 4, fill="bg" if inm else None, stroke="line" if inm else None, r=4)
-                self.txt(x + 6, y + ch - 14, str(d.day), 9, "Helvetica-Bold" if inm else "Helvetica", "text" if inm else "line")
+                hol = self.hol.get(d) if inm else None
+                fill = ("holbg" if hol[1] == "N" else "bg") if hol else ("bg" if inm else None)
+                self.box(x + 1, y + 2, cw - 2, ch - 4, fill=fill, stroke="line" if inm else None, r=4)
+                self.txt(x + 6, y + ch - 14, str(d.day), 9, "Helvetica-Bold" if inm else "Helvetica",
+                         "hol" if hol else ("text" if inm else "line"))
+                if hol:
+                    for k, ln in enumerate(simpleSplit(self.hol_name(d), "Helvetica", 5.8, cw - 12)[:3]):
+                        self.txt(x + 6, y + ch - 25 - k * 7, ln, 5.8, "Helvetica", "hol")
                 if inm:
                     self.link(x + 1, y + 2, cw - 2, ch - 4, self.day_dest(d))
+        if self.hol:
+            self.txt(M, 20, f"Merah = libur nasional / cuti bersama ({SOURCE.get(self.year, 'SKB 3 Menteri')})", 6.5, "Helvetica", "muted")
         px = gx + gw + 14
         pw = W - M - px
         self.txt(px, top + 4, "GOALS", 9, "Helvetica-Bold", "main")
@@ -295,10 +365,13 @@ class Planner(ExtraPages):
             self.box(x, y, bw, bh, fill="bg")
             if i < 7:
                 d = s + dt.timedelta(i)
-                self.box(x, y + bh - 22, bw, 22, fill="soft", stroke=None, r=6)
-                self.txt(x + 8, y + bh - 15, f"{self.dow[i]}  {d.day}", 9, "Helvetica-Bold", "main")
+                hol = self.hol.get(d)
+                self.box(x, y + bh - 22, bw, 22, fill="holbg" if hol and hol[1] == "N" else "soft", stroke=None, r=6)
+                self.txt(x + 8, y + bh - 15, f"{self.dow[i]}  {d.day}", 9, "Helvetica-Bold", "hol" if hol else "main")
                 self.txt(x + bw - 8, y + bh - 15, d.strftime("%b"), 8, "Helvetica", "muted", "r")
                 self.link(x, y + bh - 22, bw, 22, self.day_dest(d))
+                if hol:
+                    self.txt(x + 8, y + bh - 34, self.hol_name(d), 6.5, "Helvetica-Bold", "hol")
                 self.lines(x + 8, y + bh - 42, bw - 16, int((bh - 50) // 20), 20)
             else:
                 self.box(x, y + bh - 22, bw, 22, fill="accent", stroke=None, r=6)
@@ -316,6 +389,11 @@ class Planner(ExtraPages):
         prev, nxt = d - dt.timedelta(1), d + dt.timedelta(1)
         self.nav([(MONTHS[d.month - 1][:3].upper(), f"m{d.month:02d}"), (f"WEEK {n}", f"w{n}"),
                   ("< PREV", self.day_dest(prev)), ("NEXT >", self.day_dest(nxt))])
+        hn = self.hol_name(d)
+        if hn:
+            tw = self.c.stringWidth(hn, "Helvetica-Bold", 8) + 16
+            self.box(M + 175, H - 68, tw, 16, fill="holbg", stroke=None, r=5)
+            self.txt(M + 175 + tw / 2, H - 63, hn, 8, "Helvetica-Bold", "hol", "c")
         top = H - 100
         # schedule
         self.txt(M, top, "SCHEDULE", 9, "Helvetica-Bold", "main")
@@ -389,6 +467,13 @@ class Planner(ExtraPages):
         self.end()
 
     # ---------- templates ----------
+    def x_page(self, dest, *args, **kw):
+        """Halaman template tambahan; halaman kesehatan mendapat footer disclaimer."""
+        super().x_page(dest, *args, **kw)
+        if dest in HEALTH_PAGES or dest.startswith("wlog"):
+            self.txt(M, 16, "For personal tracking only. Not medical advice. Talk to your doctor about any health concern.",
+                     6.5, "Helvetica", "muted")
+
     def tpl_page(self, dest, title, sub=None):
         self.begin(dest, None, title, sub, title, 1)
         self.nav([("INDEX", "index")])
@@ -519,6 +604,8 @@ class Planner(ExtraPages):
         self.cover()
         self.index()
         self.year_page()
+        if self.hol:
+            self.holidays_page()
         for m in range(1, 13):
             self.month_page(m)
         for n in range(1, self.n_weeks + 1):
@@ -544,7 +631,16 @@ class Planner(ExtraPages):
         self.notes_page("notes", "lined", "NOTES")
         self.notes_page("notes_dot", "dotted", "NOTES")
         self.notes_page("notes_grid", "grid", "NOTES")
+        self.pages = self.c.getPageNumber() - 1
+        self.check_links()
         self.c.save()
+
+    def check_links(self):
+        """Gagalkan build kalau ada link yang menuju halaman yang tidak ada."""
+        missing = sorted(self._links - self._dests)
+        if missing:
+            print(f"GAGAL: {len(missing)} link menuju halaman yang tidak ada: {', '.join(missing[:20])}", file=sys.stderr)
+            sys.exit(1)
 
 
 def main():
@@ -553,12 +649,14 @@ def main():
     ap.add_argument("--start", choices=["monday", "sunday"], default="monday")
     ap.add_argument("--theme", choices=list(THEMES), default="sage")
     ap.add_argument("--no-daily", action="store_true", help="skip the 365 daily pages (smaller file)")
+    ap.add_argument("--no-holidays", action="store_true", help="jangan tandai libur nasional / cuti bersama Indonesia")
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
     out = a.out or os.path.join("dist", f"All-in-One-Digital-Planner-{a.year}-{a.start.capitalize()}-{a.theme}.pdf")
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
-    Planner(out, a.year, a.start, a.theme, not a.no_daily).build()
-    print("OK ->", out)
+    planner = Planner(out, a.year, a.start, a.theme, not a.no_daily, not a.no_holidays)
+    planner.build()
+    print("OK ->", out, f"({planner.pages} halaman)")
 
 
 if __name__ == "__main__":
