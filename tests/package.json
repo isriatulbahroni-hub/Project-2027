@@ -1,0 +1,6 @@
+{
+  "name": "project-2027-tests",
+  "private": true,
+  "description": "Tes asap web Planner OS (jsdom). Tidak dipakai saat build Vercel.",
+  "devDependencies": { "jsdom": "^26.0.0" }
+}
