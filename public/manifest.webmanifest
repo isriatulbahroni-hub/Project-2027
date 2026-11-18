@@ -1,0 +1,9 @@
+{
+  "name": "Planner OS 2027",
+  "short_name": "Planner OS",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#1c2438",
+  "theme_color": "#1c2438",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
