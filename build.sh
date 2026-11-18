@@ -3,6 +3,7 @@
 set -e
 PY=.venv/bin/python
 $PY check_data.py
+$PY make_icons.py
 mkdir -p public/planners
 for s in monday sunday; do
   for t in sage rose slate; do
