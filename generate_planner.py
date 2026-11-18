@@ -11,7 +11,12 @@ import datetime as dt
 import os
 
 from reportlab.lib.colors import HexColor
+from reportlab import rl_config
 from reportlab.pdfgen import canvas
+
+from templates_extra import ExtraPages
+
+rl_config.useA85 = 0  # Flate saja tanpa ASCII85: file ~20% lebih kecil, tetap standar PDF
 
 W, H = 792, 612  # US Letter landscape (same as most planner marketplaces)
 M = 28           # outer margin
@@ -26,7 +31,7 @@ MONTHS = [calendar.month_name[i] for i in range(1, 13)]
 MON_ABBR = [calendar.month_abbr[i].upper() for i in range(1, 13)]
 
 
-class Planner:
+class Planner(ExtraPages):
     def __init__(self, path, year, start, theme, daily):
         self.year, self.daily = year, daily
         self.wk0 = 0 if start == "monday" else 6
@@ -194,6 +199,11 @@ class Planner:
             self.txt(cols[2] + 6, y, label, 9)
             self.link(cols[2], y - 4, 170, 14, dest)
             y -= 16
+        # More templates (hub pages)
+        self.txt(cols[1], top - 262, "MORE TEMPLATES", 10, "Helvetica-Bold", "main")
+        for k, (label, dest) in enumerate([("Wellness", "hub_well"), ("Productivity", "hub_prod"), ("Lifestyle", "hub_life")]):
+            self.txt(cols[1] + 6, top - 282 - k * 16, label, 9)
+            self.link(cols[1], top - 286 - k * 16, 170, 14, dest)
         self.txt(cols[2], y - 14, "NOTES", 10, "Helvetica-Bold", "main")
         y -= 34
         for label, dest in [("Lined", "notes"), ("Dotted", "notes_dot"), ("Grid", "notes_grid")]:
@@ -530,6 +540,7 @@ class Planner:
         self.tpl_project()
         self.tpl_books()
         self.tpl_dump()
+        self.extra_templates()
         self.notes_page("notes", "lined", "NOTES")
         self.notes_page("notes_dot", "dotted", "NOTES")
         self.notes_page("notes_grid", "grid", "NOTES")
