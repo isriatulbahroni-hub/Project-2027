@@ -72,7 +72,7 @@ R.downloads=()=>{const fs=["monday","sunday"].flatMap(s=>["sage","rose","slate"]
   return pg("Downloads","PDF, ekspor, dan riwayat.",
    pn("File planner",fs.map(f=>`<div class="fl">${ic(I.dl)}${f}<a class="btn" href="planners/${f}" download data-act="dl:${f}">Unduh</a></div>`).join(""),"c7")
    +pn("Riwayat unduhan",D.dl.length?list(D.dl.slice(0,8).map(x=>[x.at.slice(5,10),esc(x.f),x.at.slice(11)])):empty("Belum ada riwayat","Unduhan dari perangkat ini tercatat di sini."),"c5")
-   +pn("Data saya",`<p style="margin:0 0 10px">Semua data tersimpan di perangkat ini. Ekspor untuk cadangan atau pindah perangkat.</p><div class="fm"><button class="btn pri" data-act="export:">Ekspor data (JSON)</button><label class="btn">Pulihkan dari file<input id="imp" type="file" accept=".json,application/json" hidden></label><button class="btn" data-act="reset:">Hapus semua data</button></div>`,"c12"))};
+   +pn("Data saya",`${fm("name",`<input name="n" value="${esc(D.name)}" placeholder="Nama panggilan" aria-label="Nama panggilan" maxlength="40">`,"Simpan nama","in")}<p style="margin:10px 0">Semua data tersimpan di perangkat ini. Ekspor untuk cadangan atau pindah perangkat.</p><div class="fm"><button class="btn pri" data-act="export:">Ekspor data (JSON)</button><label class="btn">Pulihkan dari file<input id="imp" type="file" accept=".json,application/json" hidden></label><button class="btn" data-act="reset:">Hapus semua data</button></div>`,"c12"))};
 R.admin=()=>{const X={Pengguna:["Belum ada pengguna","Daftar pengguna dan status akun muncul di sini setelah login aktif."],Pesanan:["Belum ada pesanan","Pesanan dari marketplace dan checkout muncul di sini."],Penjualan:["Belum ada penjualan","Rekap penjualan per varian, tema, dan periode."],Analitik:["Belum ada data analitik","Kunjungan, unduhan, dan konversi muncul di sini setelah akun dan pelacakan aktif."],Laporan:["Belum ada laporan","Laporan bulanan yang bisa diekspor ke PDF atau CSV."]};
   return pg("Admin","Pengguna, pesanan, penjualan, analitik, dan laporan.",`<div class="c12">${seg("adm",Object.keys(X).map(x=>[x,x]))}</div>`+pn(X[S.adm][0],empty(...X[S.adm]),"c12"))};
 
@@ -98,8 +98,8 @@ R.admin=()=>{const X={Pengguna:["Belum ada pengguna","Daftar pengguna dan status
     const s=t.closest("[data-set]");if(s){const[k,v]=s.dataset.set.split(":");S[k]=v;go();return}
     const a=t.closest("[data-act]");if(a){const x=a.dataset.act,i=x.indexOf(":"),r=A[x.slice(0,i)](x.slice(i+1));save();if(r===true)location.reload();else if(r!==false)go()}});
   document.addEventListener("submit",e=>{const f=e.target.closest("[data-form]");if(!f)return;e.preventDefault();const n=f.dataset.form;F[n](new FormData(f));save();go();const el=document.querySelector(`[data-form="${n}"] input:not([type=hidden])`);if(el&&n!=="journal")el.focus()});
-  document.addEventListener("change",e=>{if(e.target.id!=="imp")return;const fl=e.target.files[0];if(!fl)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);if(!o||typeof o!=="object")throw 0;D=Object.assign(def(),o);save();go();alert("Data dipulihkan.")}catch(x){alert("File tidak valid.")}};r.readAsText(fl)});
+  document.addEventListener("change",e=>{if(e.target.id!=="imp")return;const fl=e.target.files[0];if(!fl)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);if(!o||typeof o!=="object")throw 0;const c=sane(o);if(!c)throw 0;D=Object.assign(def(),c);save();go();alert("Data dipulihkan.")}catch(x){alert("File tidak valid.")}};r.readAsText(fl)});
   addEventListener("hashchange",()=>{go();$("main").scrollTop=0});
-  go();
+  fetch("holidays.json").then(r=>{if(!r.ok)throw 0;return r.json()}).then(j=>{loadHol(j);if(YRS.length&&!YRS.includes(S.cy))S.cy=YRS[0]}).catch(()=>{HOLERR=true}).finally(go);
   if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 })();

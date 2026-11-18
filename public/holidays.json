@@ -1,0 +1,45 @@
+{
+ "_info": "Satu-satunya sumber data tanggal merah. Dipakai generator PDF (holidays_id.py) dan web (core.js). Ubah file ini saja, lalu jalankan: python check_data.py",
+ "sumber": {
+  "2027": {
+   "dokumen": "SKB Menteri Agama, Menteri Ketenagakerjaan, dan Menteri PANRB No. 1205, 3, dan 2 Tahun 2026",
+   "ditetapkan": "2026-09-15",
+   "ringkas": "SKB 3 Menteri No. 1205, 3 dan 2 Tahun 2026 (15 Sep 2026)",
+   "catatan": "Tanggal 1 Ramadan, Idulfitri, dan Iduladha 1448 H ditetapkan dengan Keputusan Menteri Agama. Cek ulang bila ada pengumuman baru.",
+   "jumlah": {
+    "nasional": 18,
+    "cuti_bersama": 8
+   }
+  }
+ },
+ "libur": {
+  "2027": [
+   {"tanggal": "2027-01-01", "nama": "Tahun Baru 2027 Masehi", "jenis": "N"},
+   {"tanggal": "2027-01-05", "nama": "Isra Mikraj Nabi Muhammad SAW", "jenis": "N"},
+   {"tanggal": "2027-02-05", "nama": "Tahun Baru Imlek 2578", "jenis": "C"},
+   {"tanggal": "2027-02-06", "nama": "Tahun Baru Imlek 2578 Kongzili", "jenis": "N"},
+   {"tanggal": "2027-03-08", "nama": "Hari Suci Nyepi (Saka 1949)", "jenis": "N"},
+   {"tanggal": "2027-03-09", "nama": "Idulfitri 1448 H", "jenis": "C"},
+   {"tanggal": "2027-03-10", "nama": "Idulfitri 1448 H", "jenis": "N"},
+   {"tanggal": "2027-03-11", "nama": "Idulfitri 1448 H", "jenis": "N"},
+   {"tanggal": "2027-03-12", "nama": "Idulfitri 1448 H", "jenis": "C"},
+   {"tanggal": "2027-03-15", "nama": "Idulfitri 1448 H", "jenis": "C"},
+   {"tanggal": "2027-03-25", "nama": "Wafat Yesus Kristus", "jenis": "C"},
+   {"tanggal": "2027-03-26", "nama": "Wafat Yesus Kristus", "jenis": "N"},
+   {"tanggal": "2027-03-28", "nama": "Paskah", "jenis": "N"},
+   {"tanggal": "2027-05-01", "nama": "Hari Buruh Internasional", "jenis": "N"},
+   {"tanggal": "2027-05-06", "nama": "Kenaikan Yesus Kristus", "jenis": "N"},
+   {"tanggal": "2027-05-17", "nama": "Iduladha 1448 H", "jenis": "N"},
+   {"tanggal": "2027-05-18", "nama": "Iduladha 1448 H", "jenis": "C"},
+   {"tanggal": "2027-05-19", "nama": "Waisak 2571 BE", "jenis": "C"},
+   {"tanggal": "2027-05-20", "nama": "Hari Raya Waisak 2571 BE", "jenis": "N"},
+   {"tanggal": "2027-06-01", "nama": "Hari Lahir Pancasila", "jenis": "N"},
+   {"tanggal": "2027-06-06", "nama": "1 Muharam 1449 H", "jenis": "N"},
+   {"tanggal": "2027-08-15", "nama": "Maulid Nabi Muhammad SAW", "jenis": "N"},
+   {"tanggal": "2027-08-17", "nama": "Proklamasi Kemerdekaan RI", "jenis": "N"},
+   {"tanggal": "2027-12-24", "nama": "Natal", "jenis": "C"},
+   {"tanggal": "2027-12-25", "nama": "Natal", "jenis": "N"},
+   {"tanggal": "2027-12-26", "nama": "Isra Mikraj Nabi Muhammad SAW", "jenis": "N"}
+  ]
+ }
+}
