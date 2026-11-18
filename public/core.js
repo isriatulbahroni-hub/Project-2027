@@ -1,4 +1,4 @@
-const NAMA="Sagita",NOW=new Date();
+const NOW=new Date();
 const pad=n=>String(n).padStart(2,"0");
 const ymd=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
 const pd=s=>{const[a,b,c]=s.split("-").map(Number);return new Date(a,b-1,c)};
@@ -13,14 +13,16 @@ const rp=n=>"Rp "+Math.round(n).toLocaleString("id-ID");
 const ini=s=>"MSSRKJS"[pd(s).getDay()];
 const lastN=n=>Array.from({length:n},(_,i)=>addD(TODAY,i-n+1));
 const hrs=s=>Array.from({length:19},(_,i)=>i+5).map(h=>`<option value="${h}" ${h===s?"selected":""}>${pad(h)}.00</option>`).join("");
-const H=[[1,1,"Tahun Baru 2027 Masehi","N"],[1,5,"Isra Mikraj Nabi Muhammad SAW","N"],[2,5,"Tahun Baru Imlek 2578","C"],[2,6,"Tahun Baru Imlek 2578 Kongzili","N"],[3,8,"Hari Suci Nyepi (Saka 1949)","N"],[3,9,"Idulfitri 1448 H","C"],[3,10,"Idulfitri 1448 H","N"],[3,11,"Idulfitri 1448 H","N"],[3,12,"Idulfitri 1448 H","C"],[3,15,"Idulfitri 1448 H","C"],[3,25,"Wafat Yesus Kristus","C"],[3,26,"Wafat Yesus Kristus","N"],[3,28,"Paskah","N"],[5,1,"Hari Buruh Internasional","N"],[5,6,"Kenaikan Yesus Kristus","N"],[5,17,"Iduladha 1448 H","N"],[5,18,"Iduladha 1448 H","C"],[5,19,"Waisak 2571 BE","C"],[5,20,"Hari Raya Waisak 2571 BE","N"],[6,1,"Hari Lahir Pancasila","N"],[6,6,"1 Muharam 1449 H","N"],[8,15,"Maulid Nabi Muhammad SAW","N"],[8,17,"Proklamasi Kemerdekaan RI","N"],[12,24,"Natal","C"],[12,25,"Natal","N"],[12,26,"Isra Mikraj Nabi Muhammad SAW","N"]];
-const HOL={};H.forEach(h=>HOL["2027-"+pad(h[0])+"-"+pad(h[1])]={n:h[2],k:h[3]});
+let HOLERR=false;const HOL={},SRC={},YRS=[];
+function loadHol(j){const t=[];Object.keys(j.libur).forEach(y=>{SRC[y]=j.sumber[y]||{};j.libur[y].forEach(h=>t.push([h.tanggal,{n:h.nama,k:h.jenis}]));YRS.push(+y)});t.forEach(([s,v])=>{HOL[s]=v});YRS.sort()}
 const hl=s=>[short(s),HOL[s].n,HOL[s].k==="N"?"Nasional":"Cuti bersama"];
 const nextH=n=>Object.keys(HOL).filter(s=>s>TODAY).sort().slice(0,n);
-const def=()=>({tasks:[],events:[],goals:[],habits:[],mood:{},sleep:{},journal:[],fin:[],bud:{},proj:[],dl:[]});
+const def=()=>({name:"",tasks:[],events:[],goals:[],habits:[],mood:{},sleep:{},journal:[],fin:[],bud:{},proj:[],dl:[]});
 const KEY="planner-os-2027";let D=def();
 try{Object.assign(D,JSON.parse(localStorage.getItem(KEY))||{})}catch(e){}
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){}};
+let saveFail=false;
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){if(!saveFail){saveFail=true;alert("Data tidak bisa disimpan di perangkat ini (mode privat atau penyimpanan penuh). Gunakan Ekspor data di menu Downloads agar tidak hilang.")}}};
+const sane=o=>{const b=def(),r={};if(!o||typeof o!=="object"||Array.isArray(o))return null;for(const k in b){if(!(k in o))continue;const ok=Array.isArray(b[k])?Array.isArray(o[k]):typeof b[k]==="object"?(o[k]&&typeof o[k]==="object"&&!Array.isArray(o[k])):typeof o[k]==="string";if(ok)r[k]=o[k]}return r};
 const ic=p=>`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
 const I={home:'<path d="M3 11l9-8 9 8v10H3z"/><path d="M10 21v-6h4v6"/>',plan:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18M12.5 8h4"/>',goal:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/>',well:'<path d="M12 20s-7-4.5-7-10a4 4 0 017-2.5A4 4 0 0119 10c0 5.5-7 10-7 10z"/>',jour:'<path d="M5 19l1-4L16 5l3 3L9 18zM14 7l3 3"/>',prod:'<path d="M4 12l5 5L20 6"/>',fin:'<path d="M3 7h16a2 2 0 012 2v9H5a2 2 0 01-2-2zM3 7l12-3v3M16 13h3"/>',cal:'<path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4"/>',cat:'<path d="M4 4h12a4 4 0 014 4v12H8a4 4 0 01-4-4z"/><path d="M4 16a4 4 0 014-4h12"/>',dl:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',adm:'<path d="M4 20V11M10 20V4M16 20v-6M2 20h20"/>',srch:'<circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/>',bell:'<path d="M6 16v-5a6 6 0 0112 0v5l2 2H4zM10 20h4"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/>',menu:'<path d="M4 7h16M4 12h16M4 17h16"/>'};
 const MODS=[
@@ -33,9 +35,8 @@ const MODS=[
 {id:"finance",t:"Finance",g:"Kerja",i:"fin",d:"Anggaran, pemasukan, pengeluaran"},
 {id:"calendar",t:"Calendar",g:"Kerja",i:"cal",d:"Kalender, hari libur, cuti"},
 {id:"katalog",t:"Katalog",g:"Sistem",i:"cat",d:"Tema, template, preview"},
-{id:"downloads",t:"Downloads",g:"Sistem",i:"dl",d:"PDF, ekspor, riwayat"},
-{id:"admin",t:"Admin",g:"Sistem",i:"adm",d:"Pengguna, pesanan, penjualan, laporan"}];
-const S={cm:0,plan:"daily",date:TODAY,cy:2027,start:"monday",theme:"sage",adm:"Pengguna"};
+{id:"downloads",t:"Downloads",g:"Sistem",i:"dl",d:"PDF, ekspor, riwayat"}];
+const S={cm:0,plan:"daily",date:TODAY,cy:NOW.getFullYear(),start:"monday",theme:"sage",adm:"Pengguna"};
 const R={},A={},F={};
 const pn=(t,b,c="c12",s="")=>`<section class="pn ${c}"><header><h3>${t}</h3>${s?`<span>${s}</span>`:""}</header>${b}</section>`;
 const pg=(t,d,b)=>`<div class="ph"><h1>${t}</h1><p>${d}</p></div><div class="gd">${b}</div>`;
@@ -58,8 +59,12 @@ function grid(y,m,mon,ck){
 const legend=`<div class="lg"><span><b style="background:var(--red)"></b>Libur nasional</span><span><b style="box-shadow:inset 0 0 0 1px var(--red)"></b>Cuti bersama</span><span><b style="background:var(--brass);border-radius:50%"></b>Ada jadwal</span></div>`;
 const year=y=>`<div class="yg">${BLN.map((b,m)=>`<div><h4><button class="lk" data-act="mon:${y}-${pad(m+1)}">${b}</button></h4>${grid(y,m,true,true)}</div>`).join("")}</div>${legend}`;
 function go(){
+  const ae=document.activeElement,ak=ae&&ae.dataset&&ae.dataset.act;
   const id=(location.hash||"#dashboard").slice(1),m=MODS.find(x=>x.id===id)||MODS[0];
-  document.getElementById("view").innerHTML=R[m.id]();
+  const vw=document.getElementById("view");vw.innerHTML=R[m.id]();
+  if(HOLERR)vw.insertAdjacentHTML("afterbegin",'<p class="out" role="alert">Data tanggal merah gagal dimuat. Kalender tampil tanpa tanda libur. Muat ulang halaman saat online.</p>');
+  const av=document.querySelector(".av");if(av)av.textContent=(D.name||"?").trim().charAt(0).toUpperCase()||"?";
+  if(ak){const n=document.querySelector('[data-act="'+ak.replace(/"/g,'\\"')+'"]');if(n)n.focus()}
   document.querySelectorAll(".nv").forEach(b=>b.dataset.go===m.id?b.setAttribute("aria-current","page"):b.removeAttribute("aria-current"));
   document.title=m.t+" · Planner OS 2027";document.body.classList.remove("open");
   const d=document.querySelector("#bell .dot");if(d)d.hidden=!D.events.some(e=>e.d===TODAY)}
