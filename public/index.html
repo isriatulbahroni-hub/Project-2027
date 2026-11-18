@@ -2,47 +2,236 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>All-in-One Digital Planner 2027</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Planner OS 2027</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700&display=swap">
 <style>
-  :root { --bg:#fbfaf7; --fg:#2f3a34; --main:#5f7f6e; --soft:#e3ebe5; color-scheme: light dark; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#16201b; --fg:#e8efe9; --main:#8fb3a0; --soft:#22302a; } }
-  * { box-sizing: border-box; }
-  body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:var(--bg); color:var(--fg); display:flex; flex-direction:column; height:100vh; }
-  header { padding:12px 16px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; background:var(--soft); }
-  h1 { font-size:16px; margin:0 12px 0 0; color:var(--main); }
-  select, a.btn { font:inherit; padding:7px 12px; border-radius:8px; border:1px solid var(--main); background:var(--bg); color:var(--fg); text-decoration:none; }
-  a.btn { background:var(--main); color:var(--bg); border-color:var(--main); }
-  main { flex:1; min-height:0; }
-  iframe { width:100%; height:100%; border:0; }
-  .note { padding:6px 16px; font-size:12px; opacity:.75; }
+:root{--ink:#1c2438;--mute:#667088;--bg:#e6e9f0;--panel:#f5f6f9;--paper:#fff;--line:#d3d8e3;--red:#c4302b;--sage:#5f7f6e;--brass:#a9812c;--dock:#1c2438;--dockfg:#b9c1d6;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#e6e9f2;--mute:#9aa4bd;--bg:#12172a;--panel:#171d33;--paper:#20284a;--line:#2f3857;--red:#e5655f;--sage:#8fb3a0;--brass:#d2ab55;--dock:#0c1020;--dockfg:#8d97b3;color-scheme:dark}}
+:root[data-theme="dark"]{--ink:#e6e9f2;--mute:#9aa4bd;--bg:#12172a;--panel:#171d33;--paper:#20284a;--line:#2f3857;--red:#e5655f;--sage:#8fb3a0;--brass:#d2ab55;--dock:#0c1020;--dockfg:#8d97b3;color-scheme:dark}
+*{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:14.5px/1.5 "Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--dock);z-index:30}
+button,input{font:inherit;color:inherit}button{cursor:pointer}
+:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.ico{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+#app{display:grid;grid-template-columns:236px 1fr;grid-template-rows:56px 1fr;height:100%}
+#side{grid-row:1/3;background:var(--dock);color:var(--dockfg);display:flex;flex-direction:column;padding:14px 10px;overflow:auto;z-index:20}
+.brand{padding:4px 10px 12px;color:#fff;font-weight:700;font-size:16px;line-height:1.25}
+.brand small{display:block;font-weight:400;color:var(--dockfg);font-size:12px}
+.grp{font-size:12px;color:#7f8aa8;padding:14px 10px 4px}
+.nv{display:flex;align-items:center;gap:11px;width:100%;border:0;background:none;color:inherit;padding:8px 10px;border-radius:8px;text-align:left;position:relative}
+.nv:hover{background:#25304d}
+.nv[aria-current="page"]{background:#2d3858;color:#fff}
+.nv[aria-current="page"]::before{content:"";position:absolute;left:-10px;top:9px;bottom:9px;width:3px;background:var(--red);border-radius:2px}
+#top{display:flex;align-items:center;gap:8px;padding:0 20px;background:var(--panel);border-bottom:1px solid var(--line);position:relative}
+#menu{display:none}
+.sr{flex:1;max-width:420px;position:relative}
+.sr input{width:100%;height:36px;border:1px solid var(--line);border-radius:8px;background:var(--paper);padding:0 12px 0 34px}
+.sr .ico{position:absolute;left:10px;top:8px;color:var(--mute)}
+.sp{flex:1}
+.ib{width:36px;height:36px;border:0;border-radius:8px;background:none;display:grid;place-items:center;position:relative}
+.ib:hover{background:var(--bg)}
+.dot{position:absolute;top:7px;right:8px;width:7px;height:7px;background:var(--red);border-radius:50%}
+.av{width:32px;height:32px;border-radius:50%;background:var(--sage);color:#fff;display:grid;place-items:center;font-weight:700;margin-left:4px}
+#pop{position:absolute;right:70px;top:52px;width:300px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 14px;z-index:25;box-shadow:0 18px 30px -18px rgba(10,16,36,.6)}
+#pop h3{margin:0 0 6px;font-size:14px}
+main{overflow:auto;padding:22px 24px 36px}
+.wrap{max-width:1180px;margin:0 auto}
+.gd{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.c4{grid-column:span 4}.c5{grid-column:span 5}.c6{grid-column:span 6}.c7{grid-column:span 7}.c8{grid-column:span 8}.c12{grid-column:1/-1}
+.pn{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:16px 18px;min-width:0}
+.pn>header{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+.pn h3{margin:0;font-size:15px;font-weight:700}
+.pn header span,.mute,.note{color:var(--mute);font-size:12.5px}
+.pn header .r{margin-left:auto;display:flex;gap:4px}
+.note{margin:16px 0 0}
+.hero{background:var(--dock);color:#fff;border-radius:10px;padding:24px 26px;display:flex;flex-direction:column;justify-content:space-between;gap:18px}
+.hero p{margin:0;color:var(--dockfg)}
+.hero h1{margin:2px 0 0;font-size:34px;line-height:1.15;font-weight:700;letter-spacing:-.01em}
+.yr{height:6px;background:#2d3858;border-radius:3px;position:relative;margin:6px 0 4px}
+.yr i{position:absolute;left:0;top:0;bottom:0;background:var(--red);border-radius:3px}
+.ph{margin:0 0 16px}.ph h1{margin:0;font-size:24px;font-weight:700}.ph p{margin:2px 0 0;color:var(--mute)}
+.tl{display:grid;grid-template-columns:52px 1fr auto;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.tl:last-child{border:0}.tl.nx{box-shadow:inset 3px 0 0 var(--red);padding-left:10px}.tl b{font-variant-numeric:tabular-nums;font-weight:500;color:var(--mute)}
+.tl span:last-child{font-size:12.5px;color:var(--mute)}
+.g{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:12px;line-height:28px}
+.g i{font-style:normal;color:var(--mute)}
+.g .n{background:var(--red);color:#fff;border-radius:4px}
+.g .c{box-shadow:inset 0 0 0 1px var(--red);color:var(--red);border-radius:4px}
+.g .u{color:var(--red)}
+.g .t{font-weight:700;box-shadow:inset 0 -2px 0 var(--brass)}
+.big .g{font-size:15px;line-height:46px}
+.yg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px 20px}
+.yg h4{margin:0 0 2px;font-size:13px}.yg .g{font-size:11px;line-height:20px}
+.ag{margin-top:12px;border-top:1px solid var(--line);padding-top:8px}
+.li{display:grid;grid-template-columns:96px 1fr auto;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.li:last-child{border:0}.li .m{color:var(--mute);font-size:12.5px}
+.cols{columns:2;column-gap:28px}.cols .li{break-inside:avoid}
+.tk{display:flex;align-items:center;gap:11px;padding:9px 0 9px 10px;border-bottom:1px solid var(--line);box-shadow:inset 3px 0 0 var(--sage);cursor:pointer}
+.tk.p2{box-shadow:inset 3px 0 0 var(--red)}.tk.p1{box-shadow:inset 3px 0 0 var(--brass)}
+.tk input{accent-color:var(--sage)}.tk.d span{text-decoration:line-through;color:var(--mute)}
+.u2,.pg u{display:block;height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.pg u i{display:block;height:100%;background:var(--sage);border-radius:3px}
+.pg{padding:8px 0}.pg div{display:flex;justify-content:space-between;gap:12px;margin-bottom:5px;font-size:13.5px}.pg span{color:var(--mute);font-size:12.5px}
+.bars{display:flex;gap:10px;height:150px}
+.bars div{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.bars b{flex:1;width:100%;display:flex;align-items:flex-end;gap:3px}
+.bars i{flex:1;background:var(--sage);border-radius:3px 3px 0 0;min-height:2px}
+.bars div:last-child b i:first-child{background:var(--brass)}
+.bars span{font-size:12px;color:var(--mute)}
+.lg{display:flex;gap:14px;font-size:12.5px;color:var(--mute);margin-top:10px}
+.lg b{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px}
+.ql{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ql button{display:flex;flex-direction:column;gap:8px;align-items:flex-start;text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:12px}
+.ql button:hover{border-color:var(--sage)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper);margin:0 0 14px;flex-wrap:wrap}
+.seg button{border:0;background:none;padding:6px 14px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.dots{display:flex;gap:6px;flex-wrap:wrap}.dots i{width:22px;height:22px;border-radius:50%;background:var(--sage)}
+.hb{display:grid;grid-template-columns:120px repeat(7,1fr);gap:6px;align-items:center;padding:6px 0;font-size:13.5px}
+.hb i{height:18px;border-radius:4px;background:var(--bg)}.hb i.on{background:var(--sage)}
+.empty{border:1px dashed var(--line);border-radius:8px;padding:22px;max-width:560px}
+.empty h3{margin:0 0 4px}.empty p{margin:0;color:var(--mute)}
+.pdf{width:100%;height:520px;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+.btn{display:inline-block;border:1px solid var(--line);border-radius:7px;background:var(--paper);padding:5px 12px;color:inherit;text-decoration:none;font-size:13.5px}
+a.btn.pri{background:var(--sage);border-color:var(--sage);color:#fff}
+.fl{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.fl .btn{margin-left:auto}
+body.open::after{content:"";position:fixed;inset:0;background:rgba(8,12,28,.5);z-index:15}
+@media (max-width:1100px){.c4,.c5,.c6,.c7,.c8{grid-column:1/-1}}
+@media (max-width:900px){
+#app{grid-template-columns:1fr}
+#side{position:fixed;left:0;top:0;bottom:0;width:250px;transform:translateX(-100%);transition:transform .2s;padding-top:calc(env(safe-area-inset-top,0px) + 14px)}
+body.open #side{transform:none}
+#menu{display:grid}#top{padding:0 10px}main{padding:14px 12px 28px}
+.hero h1{font-size:26px}.cols{columns:1}.ql{grid-template-columns:repeat(2,1fr)}.hb{grid-template-columns:90px repeat(7,1fr)}#pop{right:8px}
+}
+@media (prefers-reduced-motion:reduce){#side{transition:none}}
 </style>
 </head>
 <body>
-<header>
-  <h1>Planner 2027</h1>
-  <label>Mulai
-    <select id="start"><option value="monday">Senin</option><option value="sunday">Minggu</option></select>
-  </label>
-  <label>Tema
-    <select id="theme"><option value="sage">Sage</option><option value="rose">Rose</option><option value="slate">Slate</option></select>
-  </label>
-  <a class="btn" id="open" target="_blank" rel="noopener">Buka di tab baru</a>
-  <a class="btn" id="dl" download>Download PDF</a>
-</header>
-<div class="note">Di HP, jika pratinjau tidak muncul, pakai tombol "Buka di tab baru". Link antar halaman bekerja di PDF viewer, GoodNotes, dan Notability.</div>
-<main><iframe id="view" title="Planner preview"></iframe></main>
+<div id="app">
+  <aside id="side" aria-label="Navigasi modul"></aside>
+  <header id="top">
+    <button class="ib" id="menu" aria-label="Buka menu"></button>
+    <label class="sr"><span id="sico"></span><input id="q" list="mods" placeholder="Cari modul" aria-label="Cari modul" autocomplete="off"></label>
+    <datalist id="mods"></datalist>
+    <span class="sp"></span>
+    <button class="ib" id="bell" aria-label="Notifikasi"><span class="dot"></span></button>
+    <button class="ib" id="gear" aria-label="Ganti tema terang atau gelap"></button>
+    <span class="av" title="Profil">S</span>
+    <div id="pop" hidden></div>
+  </header>
+  <main id="main"><div class="wrap" id="view"></div></main>
+</div>
 <script>
-  const s = document.getElementById('start'), t = document.getElementById('theme');
-  function update() {
-    const url = `planners/Planner-2027-${s.value}-${t.value}.pdf`;
-    document.getElementById('view').src = url;
-    document.getElementById('open').href = url;
-    document.getElementById('dl').href = url;
-  }
-  s.addEventListener('change', update);
-  t.addEventListener('change', update);
-  update();
+const NAMA="Sagita",NOW=new Date();
+const H=[[1,1,"Tahun Baru 2027 Masehi","N"],[1,5,"Isra Mikraj Nabi Muhammad SAW","N"],[2,5,"Tahun Baru Imlek 2578","C"],[2,6,"Tahun Baru Imlek 2578 Kongzili","N"],[3,8,"Hari Suci Nyepi (Saka 1949)","N"],[3,9,"Idulfitri 1448 H","C"],[3,10,"Idulfitri 1448 H","N"],[3,11,"Idulfitri 1448 H","N"],[3,12,"Idulfitri 1448 H","C"],[3,15,"Idulfitri 1448 H","C"],[3,25,"Wafat Yesus Kristus","C"],[3,26,"Wafat Yesus Kristus","N"],[3,28,"Paskah","N"],[5,1,"Hari Buruh Internasional","N"],[5,6,"Kenaikan Yesus Kristus","N"],[5,17,"Iduladha 1448 H","N"],[5,18,"Iduladha 1448 H","C"],[5,19,"Waisak 2571 BE","C"],[5,20,"Hari Raya Waisak 2571 BE","N"],[6,1,"Hari Lahir Pancasila","N"],[6,6,"1 Muharam 1449 H","N"],[8,15,"Maulid Nabi Muhammad SAW","N"],[8,17,"Proklamasi Kemerdekaan RI","N"],[12,24,"Natal","C"],[12,25,"Natal","N"],[12,26,"Isra Mikraj Nabi Muhammad SAW","N"]];
+const HM={};H.forEach(h=>HM[h[0]+"-"+h[1]]=h[3]);
+const BLN=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+const ic=p=>`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
+const I={home:'<path d="M3 11l9-8 9 8v10H3z"/><path d="M10 21v-6h4v6"/>',plan:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18M12.500 8h4"/>',goal:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.500"/>',well:'<path d="M12 20s-7-4.500-7-10a4 4 0 017-2.500A4 4 0 0119 10c0 5.500-7 10-7 10z"/>',jour:'<path d="M5 19l1-4L16 5l3 3L9 18zM14 7l3 3"/>',prod:'<path d="M4 12l5 5L20 6"/>',fin:'<path d="M3 7h16a2 2 0 012 2v9H5a2 2 0 01-2-2zM3 7l12-3v3M16 13h3"/>',cal:'<path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4"/>',cat:'<path d="M4 4h12a4 4 0 014 4v12H8a4 4 0 01-4-4z"/><path d="M4 16a4 4 0 014-4h12"/>',dl:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',adm:'<path d="M4 20V11M10 20V4M16 20v-6M2 20h20"/>',srch:'<circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/>',bell:'<path d="M6 16v-5a6 6 0 0112 0v5l2 2H4zM10 20h4"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.600 5.600l2.100 2.100M16.300 16.300l2.100 2.100M18.400 5.600l-2.100 2.100M7.700 16.300l-2.100 2.100"/>',menu:'<path d="M4 7h16M4 12h16M4 17h16"/>'};
+const MODS=[
+{id:"dashboard",t:"Dashboard",g:"Utama",i:"home",d:"Pusat kendali semua modul"},
+{id:"planner",t:"Planner",g:"Personal",i:"plan",d:"Daily, weekly, monthly, yearly"},
+{id:"goals",t:"Goals",g:"Personal",i:"goal",d:"Target, milestone, progres"},
+{id:"wellness",t:"Wellness",g:"Personal",i:"well",d:"Mood, tidur, kebiasaan"},
+{id:"journal",t:"Journal",g:"Personal",i:"jour",d:"Diary, notes, refleksi"},
+{id:"productivity",t:"Productivity",g:"Kerja",i:"prod",d:"Proyek, tugas, deadline"},
+{id:"finance",t:"Finance",g:"Kerja",i:"fin",d:"Anggaran, pemasukan, pengeluaran"},
+{id:"calendar",t:"Calendar",g:"Kerja",i:"cal",d:"Kalender, hari libur, cuti"},
+{id:"katalog",t:"Katalog",g:"Sistem",i:"cat",d:"Tema, template, preview"},
+{id:"downloads",t:"Downloads",g:"Sistem",i:"dl",d:"PDF, ekspor, riwayat"},
+{id:"admin",t:"Admin",g:"Sistem",i:"adm",d:"Pengguna, pesanan, penjualan, laporan"}];
+const S={cm:0,plan:"daily",start:"monday",theme:"sage",adm:"Pengguna",
+tasks:[["Finalisasi daftar produk marketplace",2,1],["Rapikan data tanggal merah 2027",2,0],["Balas pesan calon pembeli",1,0],["Susun konten promosi planner",1,0],["Tinjau anggaran bulan ini",0,0]]};
+const pn=(t,b,c="c12",s="")=>`<section class="pn ${c}"><header><h3>${t}</h3>${s?`<span>${s}</span>`:""}</header>${b}</section>`;
+const pg=(t,d,b)=>`<div class="ph"><h1>${t}</h1><p>${d}</p></div><div class="gd">${b}</div>`;
+const prog=r=>r.map(x=>`<div class="pg"><div><b>${x[0]}</b><span>${x[2]||x[1]+"%"}</span></div><u><i style="width:${x[1]}%"></i></u></div>`).join("");
+const list=r=>r.map(x=>`<div class="li"><b>${x[0]}</b><span>${x[1]}</span><span class="m">${x[2]||""}</span></div>`).join("");
+const seg=(k,o)=>`<div class="seg" role="group">${o.map(([v,l])=>`<button data-set="${k}:${v}" aria-pressed="${S[k]===v}">${l}</button>`).join("")}</div>`;
+const bars=(ser,lb,col=[])=>{const mx=Math.max(...ser.flat());return `<div class="bars">${lb.map((l,i)=>`<div><b>${ser.map((s,j)=>`<i title="${s[i]}" style="height:${s[i]/mx*100}%;${col[j]?"background:"+col[j]:""}"></i>`).join("")}</b><span>${l}</span></div>`).join("")}</div>`};
+const empty=(t,p)=>`<div class="empty"><h3>${t}</h3><p>${p}</p></div>`;
+function grid(y,m,mon){
+  const f=new Date(y,m,1).getDay(),off=mon?(f+6)%7:f,n=new Date(y,m+1,0).getDate();
+  let c=(mon?"SSRKJSM":"MSSRKJS").split("").map(x=>`<i>${x}</i>`).join("");
+  for(let k=0;k<off;k++)c+="<i></i>";
+  for(let d=1;d<=n;d++){const w=new Date(y,m,d).getDay(),h=y===2027&&HM[(m+1)+"-"+d],td=y===NOW.getFullYear()&&m===NOW.getMonth()&&d===NOW.getDate();
+    c+=`<span class="${h==="N"?"n":h==="C"?"c":w===0?"u":""}${td?" t":""}">${d}</span>`}
+  return `<div class="g">${c}</div>`}
+const year=()=>`<div class="yg">${BLN.map((b,m)=>`<div><h4>${b}</h4>${grid(2027,m,true)}</div>`).join("")}</div><div class="lg"><span><b style="background:var(--red)"></b>Libur nasional</span><span><b style="box-shadow:inset 0 0 0 1px var(--red)"></b>Cuti bersama</span></div>`;
+const hl=h=>[h[1]+" "+BLN[h[0]-1].slice(0,3),h[2],h[3]==="N"?"Nasional":"Cuti bersama"];
+const nextH=n=>H.map(h=>({h,d:new Date(2027,h[0]-1,h[1])})).filter(x=>x.d>NOW).slice(0,n);
+const dayL=n=>Array.from({length:n},(_,i)=>["M","S","S","R","K","J","S"][new Date(NOW.getTime()-(n-1-i)*864e5).getDay()]);
+const R={
+dashboard(){
+  const hr=NOW.getHours(),gr=hr<11?"pagi":hr<15?"siang":hr<18?"sore":"malam",nx=nextH(1)[0];
+  const days=Math.ceil((nx.d-NOW)/864e5),yd=Math.floor((NOW-new Date(NOW.getFullYear(),0,0))/864e5);
+  const tod=[["06.30","Olahraga ringan","wellness"],["09.00","Kerjakan modul dashboard","productivity"],["13.00","Cek pesanan marketplace","admin"],["16.00","Tinjau anggaran","finance"],["21.00","Tulis refleksi harian","journal"]];
+  const ni=tod.findIndex(x=>parseInt(x[0])>=hr);
+  const cm=new Date(NOW.getFullYear(),NOW.getMonth()+S.cm,1),done=S.tasks.filter(t=>t[2]).length;
+  return `<div class="gd">
+  <section class="hero c8"><div><p>Selamat ${gr}, ${NAMA}</p><h1>${NOW.toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</h1></div>
+  <div><div class="yr"><i style="width:${yd/365*100}%"></i></div><p>Hari ke-${yd} dari 365. Tanggal merah berikutnya: ${nx.h[2]}, ${days} hari lagi.</p></div></section>
+  ${pn("Hari ini",tod.map((x,i)=>`<div class="tl ${i===ni?"nx":""}"><b>${x[0]}</b><span>${x[1]}</span><span>${x[2]}</span></div>`).join(""),"c4","Contoh jadwal")}
+  ${pn(BLN[cm.getMonth()]+" "+cm.getFullYear(),grid(cm.getFullYear(),cm.getMonth(),true)+`<div class="ag">${list(nextH(3).map(x=>hl(x.h)))}</div>`,"c5").replace("</header>",`<span class="r"><button class="ib" data-cm="-1" aria-label="Bulan sebelumnya">‹</button><button class="ib" data-cm="1" aria-label="Bulan berikutnya">›</button></span></header>`)}
+  ${pn("Task center",`<div class="pg"><div><b>${done} dari ${S.tasks.length} selesai</b><span>${Math.round(done/S.tasks.length*100)}%</span></div><u><i style="width:${done/S.tasks.length*100}%"></i></u></div>`+S.tasks.map((t,i)=>`<label class="tk p${t[1]} ${t[2]?"d":""}"><input type="checkbox" data-task="${i}" ${t[2]?"checked":""}><span>${t[0]}</span></label>`).join(""),"c7")}
+  ${pn("Jam fokus",bars([[3.5,5,4,6.5,2,1.5,4.5]],dayL(7))+`<p class="mute" style="margin:10px 0 0">7 hari terakhir, hari ini di kanan. Data contoh.</p>`,"c7")}
+  ${pn("Quick launch",`<div class="ql">${MODS.slice(1).map(m=>`<button data-go="${m.id}">${ic(I[m.i])}<span>${m.t}</span></button>`).join("")}</div>`,"c5")}
+  </div>`},
+planner(){
+  const P={daily:"Daily",weekly:"Weekly",monthly:"Monthly",yearly:"Yearly"},m={6:"Olahraga ringan",9:"Kerjakan modul dashboard",13:"Cek pesanan marketplace",16:"Tinjau anggaran",21:"Tulis refleksi harian"};
+  let b;
+  if(S.plan==="daily")b=pn("Jadwal per jam",Array.from({length:16},(_,i)=>i+6).map(h=>`<div class="tl"><b>${String(h).padStart(2,"0")}.00</b><span>${m[h]||""}</span><span></span></div>`).join(""),"c12");
+  else if(S.plan==="weekly")b=pn("Tugas per hari",bars([[6,4,7,5,3,2,1]],["Sen","Sel","Rab","Kam","Jum","Sab","Min"]),"c7")+pn("Fokus minggu ini",list([["Senin","Rilis dashboard utama"],["Rabu","Uji PDF di GoodNotes"],["Jumat","Unggah ke marketplace"]]),"c5");
+  else if(S.plan==="monthly")b=`<div class="big c12">${pn(BLN[NOW.getMonth()]+" "+NOW.getFullYear(),grid(NOW.getFullYear(),NOW.getMonth(),true))}</div>`;
+  else b=pn("Tahun 2027",year());
+  return pg("Planner","Satu planner, empat tampilan waktu.",seg("plan",Object.entries(P)).replace('class="seg"','class="seg c12" style="grid-column:1/-1;justify-self:start"')+b)},
+goals(){return pg("Goals","Target, tonggak, dan progresnya.",pn("Target tahun ini",prog([["Planner 2027 terjual di marketplace",70,"3 dari 4 tonggak"],["Planner OS versi web",45,"5 dari 11 modul"],["Dana darurat",30,"30%"],["Baca 12 buku",58,"7 dari 12"]]),"c7")+pn("Milestone terdekat",list([["30 Nov","Dashboard utama online"],["15 Des","Akun dan pembayaran"],["31 Des","Rilis planner 2027"]]),"c5"))},
+wellness(){const hb=[["Olahraga",[1,1,0,1,1,0,1]],["Minum 2 liter",[1,1,1,0,1,1,1]],["Tidur sebelum 23.00",[0,1,1,0,1,0,1]],["Baca 15 menit",[1,0,1,1,0,1,1]]];
+  return pg("Wellness","Mood, tidur, dan kebiasaan harian.",pn("Mood 14 hari",`<div class="dots">${[3,4,4,2,3,5,4,3,4,4,5,3,4,5].map(v=>`<i style="opacity:${.2+v*.16}" title="${v} dari 5"></i>`).join("")}</div>`,"c5","Makin pekat, makin baik")+pn("Tidur, jam per malam",bars([[6.5,7,5.5,7.5,8,6,7]],dayL(7)),"c7")+pn("Kebiasaan minggu ini",hb.map(h=>`<div class="hb"><span>${h[0]}</span>${h[1].map(v=>`<i class="${v?"on":""}"></i>`).join("")}</div>`).join(""),"c12"))},
+journal(){return pg("Journal","Diary, catatan, dan refleksi.",pn("Entri terbaru",list([["17 Nov","Hari yang padat tapi terarah","Refleksi"],["15 Nov","Ide fitur dashboard","Catatan"],["12 Nov","Evaluasi bulan ini","Refleksi"]]),"c7","Contoh entri")+pn("Pertanyaan hari ini",`<p style="margin:0">Apa satu hal yang berjalan baik hari ini, dan apa yang ingin kamu ulangi besok?</p>`,"c5"))},
+productivity(){return pg("Productivity","Proyek, tugas, dan tenggat.",pn("Proyek aktif",prog([["Planner OS web",45,"5 dari 11 modul"],["Planner 2027 PDF",85,"85%"],["Konten promosi",20,"20%"]]),"c7")+pn("Deadline",list([["30 Nov","Dashboard utama online","Tinggi"],["5 Des","Foto produk marketplace","Sedang"],["20 Des","Uji akun dan unduhan","Sedang"]]),"c5"))},
+finance(){return pg("Finance","Pemasukan, pengeluaran, dan anggaran.",pn("Enam bulan terakhir",bars([[8.2,7.5,9.1,8.8,10.4,9.7],[6.1,6.9,6.4,7.2,7,6.6]],Array.from({length:6},(_,i)=>BLN[(NOW.getMonth()-5+i+12)%12].slice(0,3)),["var(--sage)","var(--brass)"])+`<div class="lg"><span><b style="background:var(--sage)"></b>Pemasukan</span><span><b style="background:var(--brass)"></b>Pengeluaran</span><span>Juta rupiah</span></div>`,"c7","Contoh data")+pn("Anggaran bulan ini",prog([["Kebutuhan pokok",72,"Rp 3,6 jt dari 5 jt"],["Operasional usaha",55,"Rp 1,1 jt dari 2 jt"],["Tabungan",40,"Rp 0,8 jt dari 2 jt"]]),"c5"))},
+calendar(){return pg("Calendar","Kalender, hari libur, dan cuti bersama 2027.",pn("Kalender 2027",year(),"c12")+pn("Libur dan cuti bersama",`<div class="cols">${list(H.map(hl))}</div><p class="mute" style="margin:10px 0 0">Sumber: SKB 3 Menteri, 15 September 2026. Tanggal hari besar Islam bisa berubah mengikuti Menteri Agama.</p>`,"c12","18 nasional, 8 cuti bersama"))},
+katalog(){const f=`planners/Planner-2027-${S.start}-${S.theme}.pdf`;
+  return pg("Katalog","Pilih tema dan awal minggu, lihat pratinjau.",pn("Pilih varian",`<div style="display:flex;gap:18px;flex-wrap:wrap">${seg("start",[["monday","Senin"],["sunday","Minggu"]])}${seg("theme",[["sage","Sage"],["rose","Rose"],["slate","Slate"]])}<span class="sp"></span><a class="btn" href="${f}" target="_blank" rel="noopener">Buka di tab baru</a> <a class="btn pri" href="${f}" download>Download PDF</a></div><iframe class="pdf" title="Pratinjau planner" src="${f}"></iframe><p class="mute">Di HP, jika pratinjau tidak muncul, pakai tombol Buka di tab baru.</p>`,"c12"))},
+downloads(){const fs=["monday","sunday"].flatMap(s=>["sage","rose","slate"].map(t=>`Planner-2027-${s}-${t}.pdf`));
+  return pg("Downloads","PDF, ekspor, dan riwayat.",pn("File planner",fs.map(f=>`<div class="fl">${ic(I.dl)}${f}<a class="btn" href="planners/${f}" download>Unduh</a></div>`).join(""),"c7")+pn("Riwayat unduhan",empty("Belum ada riwayat","Unduhan yang kamu lakukan akan tercatat di sini setelah akun terhubung."),"c5"))},
+admin(){const T={Pengguna:["Belum ada pengguna","Daftar pengguna dan status akunnya muncul di sini setelah login aktif."],Pesanan:["Belum ada pesanan","Pesanan dari marketplace dan checkout muncul di sini."],Penjualan:["Belum ada penjualan","Rekap penjualan per varian, tema, dan periode."],Laporan:["Belum ada laporan","Laporan bulanan yang bisa diekspor ke PDF atau CSV."]};
+  const b=S.adm==="Analitik"?pn("Kunjungan 7 hari",bars([[12,18,9,22,15,30,26]],dayL(7))+`<p class="mute" style="margin:10px 0 0">Data contoh.</p>`,"c7"):pn(T[S.adm][0],empty(...T[S.adm]),"c12");
+  return pg("Admin","Pengguna, pesanan, penjualan, analitik, dan laporan.",`<div class="c12">${seg("adm",["Pengguna","Pesanan","Penjualan","Analitik","Laporan"].map(x=>[x,x]))}</div>${b}`)}
+};
+const NOTE=["dashboard","planner","goals","wellness","journal","productivity","finance","admin"];
+function go(){
+  const id=(location.hash||"#dashboard").slice(1),m=MODS.find(x=>x.id===id)||MODS[0];
+  document.getElementById("view").innerHTML=R[m.id]()+(NOTE.includes(m.id)?`<p class="note">Data di halaman ini masih contoh. Data akunmu muncul setelah akun dan backend terhubung.</p>`:"");
+  document.querySelectorAll(".nv").forEach(b=>b.toggleAttribute("aria-current",b.dataset.go===m.id)||0);
+  document.querySelectorAll(".nv").forEach(b=>b.dataset.go===m.id?b.setAttribute("aria-current","page"):b.removeAttribute("aria-current"));
+  document.title=m.t+" · Planner OS 2027";document.body.classList.remove("open");document.getElementById("main").scrollTop=0}
+let side=`<div class="brand">Planner OS<small>2027</small></div>`,g="";
+MODS.forEach(m=>{if(m.g!==g){g=m.g;side+=`<div class="grp">${g}</div>`}side+=`<button class="nv" data-go="${m.id}">${ic(I[m.i])}${m.t}</button>`});
+document.getElementById("side").innerHTML=side;
+document.getElementById("mods").innerHTML=MODS.map(m=>`<option value="${m.t}">${m.d}</option>`).join("");
+document.getElementById("sico").innerHTML=ic(I.srch);document.getElementById("bell").insertAdjacentHTML("afterbegin",ic(I.bell));
+document.getElementById("gear").innerHTML=ic(I.gear);document.getElementById("menu").innerHTML=ic(I.menu);
+document.getElementById("pop").innerHTML=`<h3>Pengingat</h3>`+list(nextH(3).map(x=>hl(x.h)))+`<p class="mute" style="margin:8px 0 0">Notifikasi akun muncul setelah backend terhubung.</p>`;
+document.getElementById("q").addEventListener("change",e=>{const v=e.target.value.toLowerCase(),m=MODS.find(x=>x.t.toLowerCase()===v)||MODS.find(x=>(x.t+x.d).toLowerCase().includes(v));if(m){location.hash=m.id;e.target.value=""}});
+document.addEventListener("click",e=>{
+  const t=e.target,p=document.getElementById("pop");
+  if(t===document.body){document.body.classList.remove("open");return}
+  if(!t.closest("#pop,#bell"))p.hidden=true;
+  if(t.closest("#bell")){p.hidden=!p.hidden;return}
+  if(t.closest("#menu")){document.body.classList.add("open");return}
+  if(t.closest("#gear")){const r=document.documentElement,d=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;r.dataset.theme=d?"light":"dark";return}
+  const a=t.closest("[data-go]");if(a){if(location.hash==="#"+a.dataset.go)go();else location.hash=a.dataset.go;return}
+  const s=t.closest("[data-set]");if(s){const[k,v]=s.dataset.set.split(":");S[k]=v;go();return}
+  const c=t.closest("[data-cm]");if(c){S.cm+=+c.dataset.cm;go()}});
+document.addEventListener("change",e=>{if(e.target.dataset.task!==undefined){S.tasks[e.target.dataset.task][2]=e.target.checked?1:0;go()}});
+document.getElementById("pop").hidden=true;
+addEventListener("hashchange",go);go();
 </script>
 </body>
 </html>
