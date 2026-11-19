@@ -68,6 +68,7 @@
       lbl("Versi")+seg("ver",VER)+lbl("Tema")+seg("theme",THEMES)+swatch(S.theme)+lbl("Awal minggu")+seg("start",STARTS)
       +`<p class="mute" style="margin:10px 0">${tot} halaman. ${S.ver==="lite"?"Tanpa halaman harian, file lebih kecil.":"Termasuk 365 halaman harian."}</p>`
       +`<div class="fm"><a class="btn" href="${u}" target="_blank" rel="noopener">Buka di tab baru</a><a class="btn pri" href="${u}" download data-act="dl:${f}">Download PDF</a></div>`
+      +`<p class="mute" style="margin:10px 0">Di HP, buka PDF dengan GoodNotes, Notability, Adobe Acrobat, atau Xodo agar link bisa diketuk. Pratinjau bawaan browser dan Google Drive sering mengabaikan link di dalam PDF.</p>`
       +`<p class="mute" id="pdfst" role="status" style="margin:10px 0">Memeriksa file...</p>`
       +`<div id="pdfbox">${small?`<p class="mute">Pratinjau tidak ditampilkan di layar kecil. Pakai Buka di tab baru.</p>`:`<iframe class="pdf" title="Pratinjau planner" src="${u}"></iframe>`}</div>`,"c7");
     const how=pn("Cara pakai",

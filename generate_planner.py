@@ -22,6 +22,7 @@ from templates_extra import ExtraPages
 
 rl_config.useA85 = 0  # Flate saja tanpa ASCII85: file ~20% lebih kecil, tetap standar PDF
 
+MIN_TAP = 26  # pt: sisi terkecil area ketuk link; halaman landscape yang diperkecil di HP butuh target besar
 W, H = 792, 612  # US Letter landscape (same as most planner marketplaces)
 M = 28           # outer margin
 
@@ -57,6 +58,8 @@ class Planner(ExtraPages):
         self.c.setTitle(f"All-in-One Digital Planner {year}")
         self.c.setAuthor("Project-2027")
         self.c.setSubject("Hyperlinked digital planner")
+        self.c.setCreator("Project-2027 Planner Generator")
+        self.c.setKeywords(f"planner {year}, digital planner, hyperlinked, GoodNotes, Notability, tanggal merah")
         # Catat semua tujuan bookmark dan semua link untuk validasi di akhir build
         self._dests, self._links = set(), set()
         _bookmark = self.c.bookmarkPage
@@ -67,6 +70,7 @@ class Planner(ExtraPages):
 
         self.c.bookmarkPage = bookmark
         self.pages = 0
+        self._pending = []  # link halaman berjalan; area ketuknya diperbesar saat halaman selesai
         first = dt.date(year, 1, 1)
         self.first = first - dt.timedelta((first.weekday() - self.wk0) % 7)
         self.n_weeks = (dt.date(year, 12, 31) - self.first).days // 7 + 1
@@ -82,7 +86,36 @@ class Planner(ExtraPages):
     def link(self, x, y, w, h, dest):
         if dest:
             self._links.add(dest)
-            self.c.linkRect("", dest, (x, y, x + w, y + h), relative=0, thickness=0)
+            self._pending.append((x, y, x + w, y + h, dest))
+
+    def _flush_links(self):
+        """Tulis link halaman ini dengan area ketuk minimal MIN_TAP pt per sisi (jari di HP).
+        Perbesaran dipotong di titik tengah celah antar link supaya tidak saling menimpa."""
+        r = self._pending
+        self._pending = []
+        e = []
+        for x0, y0, x1, y1, _ in r:
+            ex, ey = max(0, (MIN_TAP - (x1 - x0)) / 2), max(0, (MIN_TAP - (y1 - y0)) / 2)
+            e.append([max(0, x0 - ex), max(0, y0 - ey), min(W, x1 + ex), min(H, y1 + ey)])
+        for i in range(len(r)):
+            for j in range(i + 1, len(r)):
+                a, b, ea, eb = r[i], r[j], e[i], e[j]
+                if not (ea[0] < eb[2] and eb[0] < ea[2] and ea[1] < eb[3] and eb[1] < ea[3]):
+                    continue
+                gx, gy = max(b[0] - a[2], a[0] - b[2]), max(b[1] - a[3], a[1] - b[3])
+                if gy >= 0 and gy >= gx:
+                    lo, hi = (i, j) if a[3] <= b[1] else (j, i)
+                    mid = (r[lo][3] + r[hi][1]) / 2
+                    e[lo][3], e[hi][1] = min(e[lo][3], mid), max(e[hi][1], mid)
+                elif gx >= 0:
+                    lo, hi = (i, j) if a[2] <= b[0] else (j, i)
+                    mid = (r[lo][2] + r[hi][0]) / 2
+                    e[lo][2], e[hi][0] = min(e[lo][2], mid), max(e[hi][0], mid)
+                else:  # sudah bertumpuk dari awal: kembalikan ke ukuran asli
+                    e[i], e[j] = list(a[:4]), list(b[:4])
+        for (_, _, _, _, dest), (x0, y0, x1, y1) in zip(r, e):
+            self.c.linkRect("", dest, (x0, y0, x1, y1), relative=0, thickness=0)
+
 
     def box(self, x, y, w, h, fill=None, stroke="line", r=6, lw=0.7):
         c = self.c
@@ -159,6 +192,7 @@ class Planner(ExtraPages):
             self.link(x, H - 74, tw - 4, 16, dest)
 
     def end(self):
+        self._flush_links()
         self.c.showPage()
 
     # ---------- date helpers ----------

@@ -100,6 +100,7 @@ R.admin=()=>{const X={Pengguna:["Belum ada pengguna","Daftar pengguna dan status
   document.addEventListener("submit",e=>{const f=e.target.closest("[data-form]");if(!f)return;e.preventDefault();const n=f.dataset.form;F[n](new FormData(f));save();go();const el=document.querySelector(`[data-form="${n}"] input:not([type=hidden])`);if(el&&n!=="journal")el.focus()});
   document.addEventListener("change",e=>{if(e.target.id!=="imp")return;const fl=e.target.files[0];if(!fl)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);if(!o||typeof o!=="object")throw 0;const c=sane(o);if(!c)throw 0;D=Object.assign(def(),c);save();go();alert("Data dipulihkan.")}catch(x){alert("File tidak valid.")}};r.readAsText(fl)});
   addEventListener("hashchange",()=>{go();$("main").scrollTop=0});
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&ymd(new Date())!==TODAY)location.reload()});
   fetch("holidays.json").then(r=>{if(!r.ok)throw 0;return r.json()}).then(j=>{loadHol(j);if(YRS.length&&!YRS.includes(S.cy))S.cy=YRS[0]}).catch(()=>{HOLERR=true}).finally(go);
   if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 })();

@@ -2,3 +2,5 @@ dist/
 public/planners/
 __pycache__/
 *.pyc
+public/icons/
+node_modules/
