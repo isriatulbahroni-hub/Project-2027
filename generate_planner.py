@@ -22,6 +22,7 @@ from templates_extra import ExtraPages
 
 rl_config.useA85 = 0  # Flate saja tanpa ASCII85: file ~20% lebih kecil, tetap standar PDF
 
+MIN_TAP = 26  # pt: sisi terkecil area ketuk link; halaman landscape yang diperkecil di HP butuh target besar
 W, H = 792, 612  # US Letter landscape (same as most planner marketplaces)
 M = 28           # outer margin
 
@@ -29,6 +30,13 @@ THEMES = {
     "sage":  dict(bg="#FBFAF7", main="#5F7F6E", soft="#E3EBE5", accent="#E8D9C5", text="#2F3A34", line="#D5D9D4", muted="#9AA59E", hol="#B5483F", holbg="#F5E3DF"),
     "rose":  dict(bg="#FFFBFA", main="#B5707D", soft="#F6E4E7", accent="#EBD7C3", text="#40292E", line="#E6D6D8", muted="#B39CA0", hol="#C62828", holbg="#FBE0DC"),
     "slate": dict(bg="#F9FAFB", main="#4A5D78", soft="#E2E8F0", accent="#F0DFC8", text="#1F2937", line="#D3D9E2", muted="#8E98A8", hol="#C0392B", holbg="#F8E1DE"),
+    "lavender": dict(bg="#FBFAFE", main="#7B6BA8", soft="#E9E5F4", accent="#EADFC9", text="#2E2A3F", line="#DAD6E6", muted="#A19BB5", hol="#B5483F", holbg="#F5E3DF"),
+    "ocean": dict(bg="#F7FBFC", main="#3F7F95", soft="#DDEEF2", accent="#F1E2C8", text="#1F3540", line="#CFE0E5", muted="#8AA6B0", hol="#C0392B", holbg="#F8E1DE"),
+    "peach": dict(bg="#FFFAF6", main="#D98560", soft="#FBE6DA", accent="#E6E3C8", text="#4A3028", line="#EBDCD2", muted="#BFA397", hol="#B3261E", holbg="#F9DDD8"),
+    "mocha": dict(bg="#FAF7F3", main="#8B6B52", soft="#EDE3D9", accent="#D9E0CF", text="#3A2E26", line="#DDD2C7", muted="#A8978A", hol="#B3392F", holbg="#F4DFDA"),
+    "mint": dict(bg="#F7FCFA", main="#3E9C86", soft="#DDF1EA", accent="#F3E5D0", text="#1F3A33", line="#CFE5DD", muted="#8CB0A5", hol="#C0392B", holbg="#F8E1DE"),
+    # Tema gelap untuk iPad/tablet OLED: teks terang di latar gelap, huruf pada tombol memakai warna bg (gelap)
+    "midnight": dict(bg="#1B1F2A", main="#9DB4E6", soft="#2A3040", accent="#3A4157", text="#E8ECF5", line="#3A4155", muted="#7F8AA3", hol="#FF8A80", holbg="#43303A"),
 }
 
 MONTHS = [calendar.month_name[i] for i in range(1, 13)]
@@ -50,6 +58,8 @@ class Planner(ExtraPages):
         self.c.setTitle(f"All-in-One Digital Planner {year}")
         self.c.setAuthor("Project-2027")
         self.c.setSubject("Hyperlinked digital planner")
+        self.c.setCreator("Project-2027 Planner Generator")
+        self.c.setKeywords(f"planner {year}, digital planner, hyperlinked, GoodNotes, Notability, tanggal merah")
         # Catat semua tujuan bookmark dan semua link untuk validasi di akhir build
         self._dests, self._links = set(), set()
         _bookmark = self.c.bookmarkPage
@@ -60,6 +70,7 @@ class Planner(ExtraPages):
 
         self.c.bookmarkPage = bookmark
         self.pages = 0
+        self._pending = []  # link halaman berjalan; area ketuknya diperbesar saat halaman selesai
         first = dt.date(year, 1, 1)
         self.first = first - dt.timedelta((first.weekday() - self.wk0) % 7)
         self.n_weeks = (dt.date(year, 12, 31) - self.first).days // 7 + 1
@@ -75,7 +86,36 @@ class Planner(ExtraPages):
     def link(self, x, y, w, h, dest):
         if dest:
             self._links.add(dest)
-            self.c.linkRect("", dest, (x, y, x + w, y + h), relative=0, thickness=0)
+            self._pending.append((x, y, x + w, y + h, dest))
+
+    def _flush_links(self):
+        """Tulis link halaman ini dengan area ketuk minimal MIN_TAP pt per sisi (jari di HP).
+        Perbesaran dipotong di titik tengah celah antar link supaya tidak saling menimpa."""
+        r = self._pending
+        self._pending = []
+        e = []
+        for x0, y0, x1, y1, _ in r:
+            ex, ey = max(0, (MIN_TAP - (x1 - x0)) / 2), max(0, (MIN_TAP - (y1 - y0)) / 2)
+            e.append([max(0, x0 - ex), max(0, y0 - ey), min(W, x1 + ex), min(H, y1 + ey)])
+        for i in range(len(r)):
+            for j in range(i + 1, len(r)):
+                a, b, ea, eb = r[i], r[j], e[i], e[j]
+                if not (ea[0] < eb[2] and eb[0] < ea[2] and ea[1] < eb[3] and eb[1] < ea[3]):
+                    continue
+                gx, gy = max(b[0] - a[2], a[0] - b[2]), max(b[1] - a[3], a[1] - b[3])
+                if gy >= 0 and gy >= gx:
+                    lo, hi = (i, j) if a[3] <= b[1] else (j, i)
+                    mid = (r[lo][3] + r[hi][1]) / 2
+                    e[lo][3], e[hi][1] = min(e[lo][3], mid), max(e[hi][1], mid)
+                elif gx >= 0:
+                    lo, hi = (i, j) if a[2] <= b[0] else (j, i)
+                    mid = (r[lo][2] + r[hi][0]) / 2
+                    e[lo][2], e[hi][0] = min(e[lo][2], mid), max(e[hi][0], mid)
+                else:  # sudah bertumpuk dari awal: kembalikan ke ukuran asli
+                    e[i], e[j] = list(a[:4]), list(b[:4])
+        for (_, _, _, _, dest), (x0, y0, x1, y1) in zip(r, e):
+            self.c.linkRect("", dest, (x0, y0, x1, y1), relative=0, thickness=0)
+
 
     def box(self, x, y, w, h, fill=None, stroke="line", r=6, lw=0.7):
         c = self.c
@@ -152,6 +192,7 @@ class Planner(ExtraPages):
             self.link(x, H - 74, tw - 4, 16, dest)
 
     def end(self):
+        self._flush_links()
         self.c.showPage()
 
     # ---------- date helpers ----------
@@ -648,10 +689,14 @@ def main():
     ap.add_argument("--year", type=int, default=2027)
     ap.add_argument("--start", choices=["monday", "sunday"], default="monday")
     ap.add_argument("--theme", choices=list(THEMES), default="sage")
+    ap.add_argument("--list-themes", action="store_true", help="cetak nama semua tema lalu keluar (dipakai build.sh)")
     ap.add_argument("--no-daily", action="store_true", help="skip the 365 daily pages (smaller file)")
     ap.add_argument("--no-holidays", action="store_true", help="jangan tandai libur nasional / cuti bersama Indonesia")
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
+    if a.list_themes:
+        print(" ".join(THEMES))
+        return
     out = a.out or os.path.join("dist", f"All-in-One-Digital-Planner-{a.year}-{a.start.capitalize()}-{a.theme}.pdf")
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     planner = Planner(out, a.year, a.start, a.theme, not a.no_daily, not a.no_holidays)
