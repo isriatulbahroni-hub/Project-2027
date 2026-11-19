@@ -54,7 +54,8 @@
   };
 
   R.katalog=()=>{
-    const f=cur(),u="planners/"+f,tot=pagesOf(S.ver),small=matchMedia("(max-width:700px)").matches;
+    /* Pratinjau PDF di iframe hanya untuk layar lebar dengan mouse. Di HP (termasuk mode situs desktop) browser sering tidak bisa menampilkannya. */
+    const f=cur(),u="planners/"+f,tot=pagesOf(S.ver),small=matchMedia("(max-width:700px),(pointer:coarse)").matches;
     const rows=SEC.filter(x=>(S.kc==="all"||x[0]===S.kc)&&(!S.kq||(x[0]+" "+x[1]+" "+x[2]).toLowerCase().includes(S.kq)))
       .map(x=>[esc(x[1]),esc(x[2]),x[4]&&S.ver==="lite"?"Hanya Lengkap":x[3]+" hal"]);
     const shop=Object.keys(SHOP).filter(k=>/^https:\/\//.test(SHOP[k]))
@@ -70,7 +71,7 @@
       +`<div class="fm"><a class="btn" href="${u}" target="_blank" rel="noopener">Buka di tab baru</a><a class="btn pri" href="${u}" download data-act="dl:${f}">Download PDF</a></div>`
       +`<p class="mute" style="margin:10px 0">Di HP, buka PDF dengan GoodNotes, Notability, Adobe Acrobat, atau Xodo agar link bisa diketuk. Pratinjau bawaan browser dan Google Drive sering mengabaikan link di dalam PDF.</p>`
       +`<p class="mute" id="pdfst" role="status" style="margin:10px 0">Memeriksa file...</p>`
-      +`<div id="pdfbox">${small?`<p class="mute">Pratinjau tidak ditampilkan di layar kecil. Pakai Buka di tab baru.</p>`:`<iframe class="pdf" title="Pratinjau planner" src="${u}"></iframe>`}</div>`,"c7");
+      +`<div id="pdfbox">${small?`<p class="mute">Pratinjau tidak ditampilkan di HP atau layar sentuh. Pakai Download PDF atau Buka di tab baru.</p>`:`<iframe class="pdf" title="Pratinjau planner" src="${u}"></iframe>`}</div>`,"c7");
     const how=pn("Cara pakai",
       `<ol style="margin:0;padding-left:18px;line-height:1.6"><li>Pilih versi, tema, dan awal minggu, lalu Download PDF.</li><li>Impor atau buka file di GoodNotes, Notability, atau Noteshelf.</li><li>Ketuk tab di bagian atas halaman untuk pindah antar bagian.</li><li>Tanggal merah sudah ditandai otomatis.</li></ol><p class="mute" style="margin:10px 0 0">Halaman kesehatan memuat catatan bahwa isinya bukan nasihat medis.</p>`,"c5");
     const sec=pn("Isi planner",
