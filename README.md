@@ -48,7 +48,7 @@ Opsi:
 
 - `--year` tahun planner (default 2027)
 - `--start` `monday` atau `sunday`
-- `--theme` `sage`, `rose`, atau `slate`
+- `--theme` `sage`, `rose`, `slate`, `lavender`, `ocean`, `peach`, `mocha`, `mint`, atau `midnight` (tema gelap). Daftar lengkap: `--list-themes`
 - `--no-daily` lewati halaman harian (file lebih kecil, sekitar 136 halaman)
 - `--no-holidays` jangan tandai tanggal merah Indonesia
 - `--out` path file output
@@ -57,7 +57,7 @@ Contoh membuat semua varian:
 
 ```bash
 for start in monday sunday; do
-  for theme in sage rose slate; do
+  for theme in $(python generate_planner.py --list-themes); do
     python generate_planner.py --start $start --theme $theme
   done
 done
@@ -76,15 +76,35 @@ Kalau Kemenag menetapkan tanggal hari besar Islam yang berbeda dari SKB, perbaru
 
 Tahun yang belum ada di file data tetap bisa dibuat, hanya tanpa tanda libur.
 
+## Tema
+
+Sembilan tema, didefinisikan di `THEMES` pada `generate_planner.py`. Katalog web memakai daftar warna yang sama (`TH` di `public/katalog.js`).
+`check_data.py` gagal kalau nama atau warna kedua daftar berbeda. Menambah tema: tambahkan di kedua tempat itu, lalu jalankan `python check_data.py`.
+Tema `midnight` bergaya gelap (teks terang di latar gelap), cocok untuk iPad.
+
 ## Cek otomatis
 
 Saat build, `check_data.py` memeriksa data libur dan generator memeriksa semua link. Kalau ada link yang menuju halaman yang tidak ada, build gagal
 dan nama tujuan yang bermasalah dicetak, jadi tidak ada link mati yang ikut terjual.
 
+GitHub Actions (`.github/workflows/check.yml`) menjalankan pada setiap push dan PR: validasi data libur dan tema, sintaks JS, validitas JSON,
+tes web (`tests/smoke_web.js`: buka 10 modul, ketuk semua tombol, kirim semua form) dan tes PDF (`tests/check_pdf.py`: semua link terbaca
+dan menuju halaman yang benar, tidak ada link bertumpuk, area ketuk memadai) untuk versi Lengkap (501 halaman) dan Ringkas (136 halaman).
+Menjalankan lokal: `pip install -r requirements-dev.txt`, lalu `cd tests && npm install && node smoke_web.js`.
+
+## Dipakai di HP
+
+Halaman PDF berukuran landscape (792x612 pt) yang diperkecil di layar HP, jadi area ketuk link diperbesar otomatis oleh generator
+(minimal 26 pt per sisi, dipotong di celah antar link supaya tidak saling menimpa). Tetap pakai aplikasi yang mendukung link di dalam PDF:
+GoodNotes, Notability, Adobe Acrobat, atau Xodo. Pratinjau bawaan browser dan Google Drive di HP sering mengabaikan link internal.
+
 ## Deploy (Vercel)
 
-`vercel.json` membuat 6 PDF (2 awal minggu x 3 tema) ke `public/planners/` saat build, dan `public/index.html`
+`vercel.json` menjalankan `build.sh`, yang membuat PDF (2 awal minggu x 9 tema x Lengkap/Ringkas = 36 file) ke `public/planners/` saat build, dan `public/index.html`
 menampilkan pratinjau serta tombol unduh. Versi reportlab dikunci di `requirements.txt` supaya hasil build konsisten.
+`build.sh` juga membuat ikon PNG PWA (`make_icons.py`, ke `public/icons/`). `vercel.json` memasang header keamanan
+(nosniff, Referrer-Policy, X-Frame-Options, Permissions-Policy) dan Content-Security-Policy untuk semua halaman kecuali `/planners/` (PDF).
+Kalau nanti menambah skrip atau sumber eksternal ke web, perbarui CSP di `vercel.json`.
 
 ## Catatan
 
